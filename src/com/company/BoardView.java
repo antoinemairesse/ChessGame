@@ -38,9 +38,9 @@ public class BoardView extends JPanel implements AutreEventListener {
             }
             if(c.isHinted()){
                 if(c.getPiece() != null){ // Can kill
-                    g.setColor(new Color(255,0,0,25));
+                    g.setColor(new Color(255,0,0,100));
                 } else { // Empty case
-                    g.setColor(new Color(0,0,0,25));
+                    g.setColor(new Color(0,0,0,50));
                 }
                 g.fillOval(
                         c.getX() * c.getWidth() + (c.getWidth() / 3),

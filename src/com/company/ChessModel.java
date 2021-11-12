@@ -76,8 +76,6 @@ public class ChessModel {
     }
 
     public void move(Piece piece, int x, int y) {
-
-
         for (Case c : cases) {
             c.setHovered(false);
         }
@@ -95,13 +93,15 @@ public class ChessModel {
 
     public void place(Piece piece, int x, int y){
         Piece p;
-        if((p = getPieceByCoords(x,y)) != null){
 
+        if((p = getPieceByCoords(x,y)) != null){
             if(canMovePiece(p, piece)){
+                System.out.println("true");
             }
 
             if(p.color != piece.color){
                 //remove piece from case who has it
+                System.out.println("NEXT : X : "+p.xCase+" Y : "+p.yCase);
                 getCaseByCaseCoords(p.xCase, p.yCase).setPiece(null);
                 pieces.remove(p);
                 if(p instanceof King){
@@ -110,19 +110,31 @@ public class ChessModel {
                 // TODO Add piece to player
             }
         }
+
+        // We delete piece in old case
         Case ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
         if(ca != null)
             ca.setPiece(null);
+
+        //Calculate piece new case
         piece.xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
         piece.yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
+
+        //Set piece in new case
         ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
         if(ca != null)
             ca.setPiece(piece);
 
+        //Calculate piece new coordinates (centered in the new case)
         piece.coords.x = (piece.xCase - 1)*((double)Settings.REAL_WIDTH/Settings.WIDTH_CASES);
         piece.coords.y = (piece.yCase - 1)*((double)Settings.REAL_HEIGHT/Settings.HEIGHT_CASES);
+
+        //Notify view that it needs to be repainted
         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
+
         pieceSound();
+
+        //Reset
         for (Case c : cases) {
             c.setHovered(false);
             c.setHinted(false);

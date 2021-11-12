@@ -23,17 +23,17 @@ public class Pawn extends Piece {
         Piece p;
         // Pour piece blanche
         if(( p = model.getPieceByCase(this.xCase, this.yCase-1)) == null){
-            System.out.println("peut avancer");
+            // peut avancer
             this.nextMoves.add(new Coordinates(this.xCase, this.yCase - 1));
         } else {
-            System.out.println("bloqué !");
+            // bloqué
         }
         if((p = model.getPieceByCase(this.xCase+1, this.yCase-1)) != null && p.color == Color.BLACK){
-            System.out.println("peut attaquer !");
+            //peut attaquer
             this.nextMoves.add(new Coordinates(this.xCase+1, this.yCase - 1));
         }
         if((p = model.getPieceByCase(this.xCase-1, this.yCase-1)) != null && p.color == Color.BLACK){
-            System.out.println("peut attaquer !");
+            // peut attaquer
             this.nextMoves.add(new Coordinates(this.xCase-1, this.yCase - 1));
         }
     }

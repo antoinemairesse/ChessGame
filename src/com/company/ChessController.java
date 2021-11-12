@@ -21,6 +21,9 @@ public class ChessController implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        int xCase = (int) Math.ceil((e.getX() / (double) Settings.CASE_SIZE));
+        int yCase = (int) Math.ceil((e.getY() / (double) Settings.CASE_SIZE));
+        System.out.println("CLICK : X : "+xCase+" Y : "+yCase);
     }
 
     @Override
@@ -29,23 +32,19 @@ public class ChessController implements MouseListener, MouseMotionListener {
         if(selectedPiece != null && selectedPiece instanceof Pawn && selectedPiece.color == Color.WHITE){
             selectedPiece.nextPossibleMoves(model);
             model.setNextPossiblesMovesCasesHinted(selectedPiece.nextMoves);
-            for (Coordinates c : selectedPiece.nextMoves) {
-                System.out.print("X : "+c.x+" Y : "+c.y+" ");
-            }
-            System.out.println();
         }
         if(selectedPiece != null && selectedPiece instanceof Pawn && selectedPiece.color == Color.BLACK){
             Piece p;
             if((p = model.getPieceByCase(selectedPiece.xCase, selectedPiece.yCase+1)) == null){
-                System.out.println("peut avancer");
+                // avance
             } else {
-                System.out.println("bloqué !");
+                // bloqué
             }
             if((p = model.getPieceByCase(selectedPiece.xCase+1, selectedPiece.yCase+1)) != null && p.color == Color.WHITE){
-                System.out.println("peut attaquer !");
+                //attaque
             }
             if((p = model.getPieceByCase(selectedPiece.xCase-1, selectedPiece.yCase+1)) != null && p.color == Color.WHITE){
-                System.out.println("peut attaquer !");
+                //attaque
             }
         }
     }
