@@ -58,9 +58,9 @@ public class ChessModel {
         for (int y = 0; y < Settings.HEIGHT_CASES; y++) {
             for (int x = 0; x < Settings.WIDTH_CASES; x++) {
                 if (colorTest) {
-                    cases.add(new Case(x,y,Settings.CASE_COLOR1));
+                    cases.add(new Case(x, y, Settings.CASE_COLOR1));
                 } else {
-                    cases.add(new Case(x,y,Settings.CASE_COLOR2));
+                    cases.add(new Case(x, y, Settings.CASE_COLOR2));
                 }
                 colorTest = !colorTest;
             }
@@ -69,7 +69,7 @@ public class ChessModel {
 
         for (Piece piece : pieces) {
             Case c = getCaseByCaseCoords(piece.xCase, piece.yCase);
-            if(c != null)
+            if (c != null)
                 c.setPiece(piece);
         }
 
@@ -83,56 +83,56 @@ public class ChessModel {
                 (int) Math.ceil((x / (double) Settings.CASE_SIZE)),
                 (int) Math.ceil((y / (double) Settings.CASE_SIZE))
         );
-        if(c != null)
+        if (c != null)
             c.setHovered(true);
 
-        piece.coords.x = x - (Settings.CASE_SIZE*0.5208); //
-        piece.coords.y = y - (Settings.CASE_SIZE*0.6770);
+        piece.coords.x = x - (Settings.CASE_SIZE * 0.5208); //
+        piece.coords.y = y - (Settings.CASE_SIZE * 0.6770);
         notifieur.diffuserAutreEvent(new AutreEvent(this, piece));
     }
 
-    public void place(Piece piece, int x, int y){
+    public void place(Piece piece, int x, int y) {
         Piece p;
 
-        if((p = getPieceByCoords(x,y)) != null){
-            if(canMovePiece(p, piece)){
-                System.out.println("true");
+        if (canMovePiece(x, y, piece)) {
+
+            //if a piece is on the case we want to go
+            if ((p = getPieceByCoords(x, y)) != null) {
+                System.out.println(p.color+" "+piece.color);
+                if (p.color != piece.color) {
+                    System.out.println("test");
+                    //remove piece from case who has it
+                    getCaseByCaseCoords(p.xCase, p.yCase).setPiece(null);
+                    pieces.remove(p);
+                    if (p instanceof King) {
+                        //TODO WIN
+                    }
+                    // TODO Add piece to player
+                }
             }
 
-            if(p.color != piece.color){
-                //remove piece from case who has it
-                System.out.println("NEXT : X : "+p.xCase+" Y : "+p.yCase);
-                getCaseByCaseCoords(p.xCase, p.yCase).setPiece(null);
-                pieces.remove(p);
-                if(p instanceof King){
-                    //TODO WIN
-                }
-                // TODO Add piece to player
-            }
+            // We delete piece in old case
+            Case ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
+            if (ca != null)
+                ca.setPiece(null);
+
+            //Calculate piece new case
+            piece.xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
+            piece.yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
+
+            //Set piece in new case
+            ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
+            if (ca != null)
+                ca.setPiece(piece);
+            pieceSound();
         }
 
-        // We delete piece in old case
-        Case ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
-        if(ca != null)
-            ca.setPiece(null);
-
-        //Calculate piece new case
-        piece.xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
-        piece.yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
-
-        //Set piece in new case
-        ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
-        if(ca != null)
-            ca.setPiece(piece);
-
         //Calculate piece new coordinates (centered in the new case)
-        piece.coords.x = (piece.xCase - 1)*((double)Settings.REAL_WIDTH/Settings.WIDTH_CASES);
-        piece.coords.y = (piece.yCase - 1)*((double)Settings.REAL_HEIGHT/Settings.HEIGHT_CASES);
+        piece.coords.x = (piece.xCase - 1) * ((double) Settings.REAL_WIDTH / Settings.WIDTH_CASES);
+        piece.coords.y = (piece.yCase - 1) * ((double) Settings.REAL_HEIGHT / Settings.HEIGHT_CASES);
 
         //Notify view that it needs to be repainted
         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
-
-        pieceSound();
 
         //Reset
         for (Case c : cases) {
@@ -145,46 +145,51 @@ public class ChessModel {
         int xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
         int yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
         for (Piece piece : pieces) {
-            if(piece.xCase == xCase && piece.yCase == yCase){
+            if (piece.xCase == xCase && piece.yCase == yCase) {
                 return piece;
             }
         }
         return null;
     }
 
-    public Piece getPieceByCase(int xCase, int yCase){
+    public Piece getPieceByCase(int xCase, int yCase) {
         for (Piece piece : pieces) {
-            if(piece.xCase == xCase && piece.yCase == yCase){
+            if (piece.xCase == xCase && piece.yCase == yCase) {
                 return piece;
             }
         }
         return null;
     }
 
-    public Case getCaseByCaseCoords(int xCase, int yCase){
+    public Case getCaseByCaseCoords(int xCase, int yCase) {
         for (Case c : cases) {
-            if(c.getX() == xCase-1 && c.getY() == yCase-1){
+            if (c.getX() == xCase - 1 && c.getY() == yCase - 1) {
                 return c;
             }
         }
         return null;
     }
 
-    public void setNextPossiblesMovesCasesHinted(LinkedList<Coordinates> nextPossiblesMoves){
-        for(Coordinates c : nextPossiblesMoves){
+    public void setNextPossiblesMovesCasesHinted(LinkedList<Coordinates> nextPossiblesMoves) {
+        for (Coordinates c : nextPossiblesMoves) {
             Case ca = getCaseByCaseCoords((int) c.x, (int) c.y);
-            if(ca != null){
+            if (ca != null) {
                 ca.setHinted(true);
             }
         }
     }
 
-    public boolean canMovePiece(Piece next, Piece now){
+    public boolean canMovePiece(int x, int y, Piece now) {
         boolean response = false;
-        Case c = getCaseByCaseCoords(next.xCase, next.yCase);
-        if(c != null){
-            for(Coordinates cd : now.nextMoves){
-                if(c == getCaseByCaseCoords((int) cd.x, (int) cd.y)){
+        int xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
+        int yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
+        Case c = getCaseByCaseCoords(xCase, yCase);
+        Case test;
+        if (c != null) {
+            for (Coordinates cd : now.nextMoves) {
+                System.out.println(cd.x+" "+cd.y);
+                test = getCaseByCaseCoords((int) cd.x, (int) cd.y);
+                if (c == test) {
                     response = true;
                 }
             }
@@ -192,7 +197,7 @@ public class ChessModel {
         return response;
     }
 
-    public void pieceSound(){
+    public void pieceSound() {
         File file = new File("resources/piece_sound.wav");
         AudioInputStream audioInputStream = null;
         try {
