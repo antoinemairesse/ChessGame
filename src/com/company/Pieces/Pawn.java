@@ -24,7 +24,7 @@ public class Pawn extends Piece {
         int colorDiff = this.color == Color.WHITE ? 0 : -2;
 
         if ((p = model.getPieceByCase(this.xCase, this.yCase - (1 + colorDiff))) == null) {
-            //can move forward
+            //Can move to case
             this.nextMoves.add(new Coordinates(this.xCase, this.yCase - (1 + colorDiff)));
         }
         if ((p = model.getPieceByCase(this.xCase + 1, this.yCase - (1 + colorDiff))) != null && p.color != this.color) {

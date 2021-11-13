@@ -43,7 +43,7 @@ public class Rook extends Piece {
     private boolean yAxisPossibleMoves(ChessModel model, int y) {
         Piece p;
         if ((p = model.getPieceByCase(this.xCase, y)) == null) {
-            //Can move forward
+            //Can move to case
             this.nextMoves.add(new Coordinates(this.xCase, y));
         } else {
             if(p.color != this.color){
@@ -59,7 +59,7 @@ public class Rook extends Piece {
     private boolean xAxisPossibleMoves(ChessModel model, int x) {
         Piece p;
         if ((p = model.getPieceByCase(x, this.yCase)) == null) {
-            //Can move forward
+            //Can move to case
             this.nextMoves.add(new Coordinates(x, this.yCase));
         } else {
             if(p.color != this.color){

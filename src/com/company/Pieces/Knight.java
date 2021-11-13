@@ -1,6 +1,7 @@
 package com.company.Pieces;
 
 import com.company.ChessModel;
+import com.company.Coordinates;
 import com.company.Piece;
 
 import javax.swing.*;
@@ -18,6 +19,28 @@ public class Knight extends Piece {
 
     @Override
     public void nextPossibleMoves(ChessModel model) {
+        this.nextMoves.clear();
+        movePossible(-1, 2, model);
+        movePossible(1, 2, model);
+        movePossible(-1, -2, model);
+        movePossible(1, -2, model);
+        movePossible(2, 1, model);
+        movePossible(2, -1, model);
+        movePossible(-2, 1, model);
+        movePossible(-2, -1, model);
+    }
 
+    public void movePossible(int offsetX, int offsetY, ChessModel model){
+        Piece p;
+        if ((p = model.getPieceByCase(this.xCase+offsetX, this.yCase+offsetY)) == null) {
+            //Can move to case
+            this.nextMoves.add(new Coordinates(this.xCase+offsetX, this.yCase+offsetY));
+        } else {
+            if(p.color != this.color){
+                //Can capture piece
+                this.nextMoves.add(new Coordinates(this.xCase+offsetX, this.yCase+offsetY));
+            }
+            //There is an obstacle blocking the way
+        }
     }
 }

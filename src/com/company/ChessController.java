@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.Pieces.Bishop;
+import com.company.Pieces.Knight;
 import com.company.Pieces.Pawn;
 import com.company.Pieces.Rook;
 
@@ -33,7 +34,8 @@ public class ChessController implements MouseListener, MouseMotionListener {
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
         if(selectedPiece != null && selectedPiece instanceof Pawn
                 || selectedPiece instanceof Rook
-                || selectedPiece instanceof Bishop){
+                || selectedPiece instanceof Bishop
+                || selectedPiece instanceof Knight){
             selectedPiece.nextPossibleMoves(model);
             model.setNextPossiblesMovesCasesHinted(selectedPiece.nextMoves);
         }

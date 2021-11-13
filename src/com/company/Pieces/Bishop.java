@@ -26,7 +26,7 @@ public class Bishop extends Piece {
         // x+ y+
         for (int offset = 1; (this.yCase + offset) <= Settings.HEIGHT_CASES && (this.xCase + offset) <= Settings.WIDTH_CASES; offset++) {
             if ((p = model.getPieceByCase(this.xCase + offset, this.yCase + offset)) == null) {
-                //Can move forward
+                //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase + offset, this.yCase + offset));
             } else {
                 if (p.color != this.color) {
@@ -42,7 +42,7 @@ public class Bishop extends Piece {
         // x- y-
         for (int offset = 1; (this.yCase - offset) >= 1 && (this.xCase - offset) >= 1; offset++) {
             if ((p = model.getPieceByCase(this.xCase - offset, this.yCase - offset)) == null) {
-                //Can move forward
+                //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase - offset, this.yCase - offset));
             } else {
                 if (p.color != this.color) {
@@ -58,7 +58,7 @@ public class Bishop extends Piece {
         // x+ y-
         for (int offset = 1; (this.yCase - offset) >= 1 && (this.xCase + offset) <= Settings.WIDTH_CASES; offset++) {
             if ((p = model.getPieceByCase(this.xCase + offset, this.yCase - offset)) == null) {
-                //Can move forward
+                //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase + offset, this.yCase - offset));
             } else {
                 if (p.color != this.color) {
@@ -74,7 +74,7 @@ public class Bishop extends Piece {
         // x- y+
         for (int offset = 1; (this.yCase + offset) <= Settings.HEIGHT_CASES && (this.xCase - offset) >= 1; offset++) {
             if ((p = model.getPieceByCase(this.xCase - offset, this.yCase + offset)) == null) {
-                //Can move forward
+                //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase - offset, this.yCase + offset));
             } else {
                 if (p.color != this.color) {
