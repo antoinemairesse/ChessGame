@@ -16,41 +16,49 @@ public class ChessModel {
 
     public ChessModel() {
 
-        pieces.add(new Pawn(1, 2, Color.BLACK));
-        pieces.add(new Pawn(2, 2, Color.BLACK));
-        pieces.add(new Pawn(3, 2, Color.BLACK));
-        pieces.add(new Pawn(4, 2, Color.BLACK));
-        pieces.add(new Pawn(5, 2, Color.BLACK));
-        pieces.add(new Pawn(6, 2, Color.BLACK));
-        pieces.add(new Pawn(7, 2, Color.BLACK));
-        pieces.add(new Pawn(8, 2, Color.BLACK));
+        Color color;
+        if(Settings.SIDE == Color.WHITE){
+            color = Color.BLACK;
+        } else {
+            color = Color.WHITE;
+        }
 
-        pieces.add(new Rook(1, 1, Color.BLACK));
-        pieces.add(new Knight(2, 1, Color.BLACK));
-        pieces.add(new Bishop(3, 1, Color.BLACK));
-        pieces.add(new Queen(4, 1, Color.BLACK));
-        pieces.add(new King(5, 1, Color.BLACK));
-        pieces.add(new Bishop(6, 1, Color.BLACK));
-        pieces.add(new Knight(7, 1, Color.BLACK));
-        pieces.add(new Rook(8, 1, Color.BLACK));
+        pieces.add(new Pawn(1, 6, Settings.SIDE));
+        pieces.add(new Pawn(2, 6, Settings.SIDE));
+        pieces.add(new Pawn(3, 6, Settings.SIDE));
+        pieces.add(new Pawn(4, 6, Settings.SIDE));
+        pieces.add(new Pawn(5, 6, Settings.SIDE));
+        pieces.add(new Pawn(6, 6, Settings.SIDE));
+        pieces.add(new Pawn(7, 6, Settings.SIDE));
+        pieces.add(new Pawn(8, 6, Settings.SIDE));
 
-        pieces.add(new Pawn(1, 6, Color.WHITE));
-        pieces.add(new Pawn(2, 6, Color.WHITE));
-        pieces.add(new Pawn(3, 6, Color.WHITE));
-        pieces.add(new Pawn(4, 6, Color.WHITE));
-        pieces.add(new Pawn(5, 6, Color.WHITE));
-        pieces.add(new Pawn(6, 6, Color.WHITE));
-        pieces.add(new Pawn(7, 6, Color.WHITE));
-        pieces.add(new Pawn(8, 6, Color.WHITE));
+        pieces.add(new Rook(1, 7, Settings.SIDE));
+        pieces.add(new Knight(2, 7, Settings.SIDE));
+        pieces.add(new Bishop(3, 7, Settings.SIDE));
+        pieces.add(new Queen(4, 7, Settings.SIDE));
+        pieces.add(new King(5, 7, Settings.SIDE));
+        pieces.add(new Bishop(6, 7, Settings.SIDE));
+        pieces.add(new Knight(7, 7, Settings.SIDE));
+        pieces.add(new Rook(8, 7, Settings.SIDE));
 
-        pieces.add(new Rook(1, 7, Color.WHITE));
-        pieces.add(new Knight(2, 7, Color.WHITE));
-        pieces.add(new Bishop(3, 7, Color.WHITE));
-        pieces.add(new Queen(4, 7, Color.WHITE));
-        pieces.add(new King(5, 7, Color.WHITE));
-        pieces.add(new Bishop(6, 7, Color.WHITE));
-        pieces.add(new Knight(7, 7, Color.WHITE));
-        pieces.add(new Rook(8, 7, Color.WHITE));
+
+        pieces.add(new Pawn(1, 2, color));
+        pieces.add(new Pawn(2, 2, color));
+        pieces.add(new Pawn(3, 2, color));
+        pieces.add(new Pawn(4, 2, color));
+        pieces.add(new Pawn(5, 2, color));
+        pieces.add(new Pawn(6, 2, color));
+        pieces.add(new Pawn(7, 2, color));
+        pieces.add(new Pawn(8, 2, color));
+
+        pieces.add(new Rook(1, 1, color));
+        pieces.add(new Knight(2, 1, color));
+        pieces.add(new Bishop(3, 1, color));
+        pieces.add(new Queen(4, 1, color));
+        pieces.add(new King(5, 1, color));
+        pieces.add(new Bishop(6, 1, color));
+        pieces.add(new Knight(7, 1, color));
+        pieces.add(new Rook(8, 1, color));
 
         // Create board cases
         boolean colorTest = true;
@@ -97,9 +105,7 @@ public class ChessModel {
 
             //if a piece is on the case we want to go
             if ((p = getPieceByCoords(x, y)) != null) {
-                System.out.println(p.color+" "+piece.color);
                 if (p.color != piece.color) {
-                    System.out.println("test");
                     //remove piece from case who has it
                     getCaseByCaseCoords(p.xCase, p.yCase).setPiece(null);
                     pieces.remove(p);
@@ -186,7 +192,6 @@ public class ChessModel {
         Case test;
         if (c != null) {
             for (Coordinates cd : now.nextMoves) {
-                System.out.println(cd.x+" "+cd.y);
                 test = getCaseByCaseCoords((int) cd.x, (int) cd.y);
                 if (c == test) {
                     response = true;

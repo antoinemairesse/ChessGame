@@ -2,6 +2,7 @@ package com.company;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class BoardView extends JPanel implements AutreEventListener {
@@ -60,35 +61,42 @@ public class BoardView extends JPanel implements AutreEventListener {
     }
 
     public void paintCaseNumber(Graphics g) {
+
+
+
         g.setFont(new Font("", Font.BOLD, (int) (Settings.CASE_SIZE * 0.2187)));
         boolean colorTest = true;
-        for (int y = 0; y < Settings.HEIGHT_CASES; y++) {
-            for (int x = 0; x < Settings.WIDTH_CASES; x++) {
-                if (y == 6) {
-                    char[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-                    if (colorTest) {
-                        g.setColor(Settings.CASE_COLOR2);
-                    } else {
-                        g.setColor(Settings.CASE_COLOR1);
-                    }
+        for (int x = 0; x < Settings.WIDTH_CASES; x++) {
+            Object[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+            Object[] numbers = {1, 2, 3, 4, 5, 6, 7};
+            Object[] invertedNumbers = {7, 6, 5, 4, 3, 2, 1};
+
+            if(Settings.SIDE == Color.BLACK){
+                invertArray(alphabet);
+            }
+
+            if (colorTest) {
+                g.setColor(Settings.CASE_COLOR2);
+            } else {
+                g.setColor(Settings.CASE_COLOR1);
+            }
+            g.drawString(
+                    String.valueOf(alphabet[x]),
+                    ((x + 1) * (Settings.REAL_WIDTH / Settings.WIDTH_CASES) - 15),
+                    (Settings.REAL_HEIGHT - 15)
+            );
+            if(x < 7){
+                if(Settings.SIDE == Color.BLACK){
                     g.drawString(
-                            String.valueOf(alphabet[x]),
-                            ((x + 1) * (Settings.REAL_WIDTH / Settings.WIDTH_CASES) - 15),
-                            (Settings.REAL_HEIGHT - 15)
-                    );
-                }
-                if (x == 0) {
-                    if (colorTest) {
-                        g.setColor(Settings.CASE_COLOR2);
-                    } else {
-                        g.setColor(Settings.CASE_COLOR1);
-                    }
-                    g.drawString(
-                            String.valueOf(y + 1),
+                            String.valueOf(numbers[x]),
                             3,
-                            (Settings.REAL_HEIGHT - ((y + 1) * (Settings.REAL_HEIGHT / Settings.HEIGHT_CASES) - 25)));
+                            (Settings.REAL_HEIGHT - (((int) invertedNumbers[x]) * (Settings.REAL_HEIGHT / Settings.HEIGHT_CASES) - 25)));
+                } else {
+                    g.drawString(
+                            String.valueOf(numbers[x]),
+                            3,
+                            (Settings.REAL_HEIGHT - (((int) numbers[x]) * (Settings.REAL_HEIGHT / Settings.HEIGHT_CASES) - 25)));
                 }
-                colorTest = !colorTest;
             }
             colorTest = !colorTest;
         }
@@ -104,6 +112,14 @@ public class BoardView extends JPanel implements AutreEventListener {
         if (evt.getSource() instanceof ChessModel && evt.getDonnee() == "place") {
             this.repaint();
             this.view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    void invertArray(Object[] array) {
+        for (int i = 0; i < array.length / 2; i++) {
+            Object temp = array[i];
+            array[i] = array[array.length - 1 - i];
+            array[array.length - 1 - i] = temp;
         }
     }
 }

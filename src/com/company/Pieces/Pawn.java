@@ -3,6 +3,7 @@ package com.company.Pieces;
 import com.company.ChessModel;
 import com.company.Coordinates;
 import com.company.Piece;
+import com.company.Settings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,7 +22,7 @@ public class Pawn extends Piece {
     public void nextPossibleMoves(ChessModel model) {
         this.nextMoves.clear();
         Piece p;
-        int colorDiff = this.color == Color.WHITE ? 0 : -2;
+        int colorDiff = this.color == Settings.SIDE ? 0 : -2;
 
         if ((p = model.getPieceByCase(this.xCase, this.yCase - (1 + colorDiff))) == null) {
             //Can move to case

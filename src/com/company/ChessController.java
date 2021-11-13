@@ -1,9 +1,6 @@
 package com.company;
 
-import com.company.Pieces.Bishop;
-import com.company.Pieces.Knight;
-import com.company.Pieces.Pawn;
-import com.company.Pieces.Rook;
+import com.company.Pieces.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,6 +9,12 @@ public class ChessController implements MouseListener, MouseMotionListener {
     ChessModel model;
     ChessView view;
     Piece selectedPiece = null;
+
+    //Collection de piece blanc noir
+    //l'ordi choisi une piece random dans la collection puis regarde les possibles moves
+    // si y'en a pas alors il rechoisi
+    //si il y en a au moins un il execute un random
+    //Possibilite de changer de side dans les settings
 
     public ChessController() {
     }
@@ -24,18 +27,15 @@ public class ChessController implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        int xCase = (int) Math.ceil((e.getX() / (double) Settings.CASE_SIZE));
-        int yCase = (int) Math.ceil((e.getY() / (double) Settings.CASE_SIZE));
-        System.out.println("CLICK : X : "+xCase+" Y : "+yCase);
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
-        if(selectedPiece != null && selectedPiece instanceof Pawn
-                || selectedPiece instanceof Rook
-                || selectedPiece instanceof Bishop
-                || selectedPiece instanceof Knight){
+        if(selectedPiece != null && selectedPiece.color != Settings.SIDE){
+            selectedPiece = null;
+        }
+        if(selectedPiece != null && !(selectedPiece instanceof King)){
             selectedPiece.nextPossibleMoves(model);
             model.setNextPossiblesMovesCasesHinted(selectedPiece.nextMoves);
         }
@@ -68,7 +68,8 @@ public class ChessController implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if(model.getPieceByCoords(e.getX(), e.getY()) != null){
+        Piece p;
+        if((p = model.getPieceByCoords(e.getX(), e.getY())) != null && p.color == Settings.SIDE){
             this.view.setCursor(new Cursor(Cursor.HAND_CURSOR));
         }else{
             this.view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
