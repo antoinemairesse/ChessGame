@@ -14,7 +14,6 @@ public class ChessModel {
     AutreEventNotifieur notifieur = new AutreEventNotifieur();
     LinkedList<Case> cases = new LinkedList<>();
 
-    // a faire methodes move qui notifie la vue
     public ChessModel() {
 
         pieces.add(new Pawn(1, 2, Color.BLACK));
