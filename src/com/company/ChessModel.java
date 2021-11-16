@@ -120,8 +120,14 @@ public class ChessModel {
                     pieces.remove(p);
                     if (p instanceof King) {
                         //TODO WIN
+                    } else {
+                        //Add captured piece to player
+                        if(!player.isCanPlay()){
+                            computer.getCaptured().add(p);
+                        } else {
+                            player.getCaptured().add(p);
+                        }
                     }
-                    // TODO Add piece to player
                 }
             }
 
