@@ -6,18 +6,14 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class ChessController implements MouseListener, MouseMotionListener {
-    ChessModel model;
-    ChessView view;
-    Piece selectedPiece = null;
+    private ChessModel model;
+    private ChessView view;
+    private Piece selectedPiece = null;
 
     //Collection de piece blanc noir
     //l'ordi choisi une piece random dans la collection puis regarde les possibles moves
     // si y'en a pas alors il rechoisi
     //si il y en a au moins un il execute un random
-    //Possibilite de changer de side dans les settings
-
-    public ChessController() {
-    }
 
     public ChessController(ChessModel model, ChessView view) {
         this.model = model;
@@ -32,10 +28,8 @@ public class ChessController implements MouseListener, MouseMotionListener {
     @Override
     public void mousePressed(MouseEvent e) {
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
-        if(selectedPiece != null && selectedPiece.color != Settings.SIDE){
-            selectedPiece = null;
-        }
-        if(selectedPiece != null && !(selectedPiece instanceof King)){
+
+        if(selectedPiece != null){
             selectedPiece.nextPossibleMoves(model);
             model.setNextPossiblesMovesCasesHinted(selectedPiece.nextMoves);
         }
@@ -74,5 +68,29 @@ public class ChessController implements MouseListener, MouseMotionListener {
         }else{
             this.view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
+    }
+
+    public ChessModel getModel() {
+        return model;
+    }
+
+    public void setModel(ChessModel model) {
+        this.model = model;
+    }
+
+    public ChessView getView() {
+        return view;
+    }
+
+    public void setView(ChessView view) {
+        this.view = view;
+    }
+
+    public Piece getSelectedPiece() {
+        return selectedPiece;
+    }
+
+    public void setSelectedPiece(Piece selectedPiece) {
+        this.selectedPiece = selectedPiece;
     }
 }

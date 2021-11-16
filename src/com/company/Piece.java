@@ -4,11 +4,11 @@ import java.awt.*;
 import java.util.LinkedList;
 
 public abstract class Piece {
-    public int xCase, yCase, size = Settings.CASE_SIZE;
-    public Coordinates coords;
-    public Image icon;
-    public Color color;
-    public LinkedList<Coordinates> nextMoves = new LinkedList<>();
+    protected int xCase, yCase, size = Settings.CASE_SIZE;
+    protected Coordinates coords;
+    protected Image icon;
+    protected Color color;
+    protected LinkedList<Coordinates> nextMoves = new LinkedList<>();
 
     public Piece(int xCase, int yCase, Color color) {
         this.xCase = xCase;
@@ -21,4 +21,59 @@ public abstract class Piece {
 
     public abstract void nextPossibleMoves(ChessModel model);
 
+    public int getxCase() {
+        return xCase;
+    }
+
+    public void setxCase(int xCase) {
+        this.xCase = xCase;
+    }
+
+    public int getyCase() {
+        return yCase;
+    }
+
+    public void setyCase(int yCase) {
+        this.yCase = yCase;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public Coordinates getCoords() {
+        return coords;
+    }
+
+    public void setCoords(Coordinates coords) {
+        this.coords = coords;
+    }
+
+    public Image getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Image icon) {
+        this.icon = icon;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public LinkedList<Coordinates> getNextMoves() {
+        return nextMoves;
+    }
+
+    public void setNextMoves(LinkedList<Coordinates> nextMoves) {
+        this.nextMoves = nextMoves;
+    }
 }

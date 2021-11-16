@@ -27,8 +27,8 @@ public class Queen extends Piece {
         Bishop bishop = new Bishop(this.xCase, this.yCase, this.color);
         rook.nextPossibleMoves(model);
         bishop.nextPossibleMoves(model);
-        this.nextMoves.addAll(rook.nextMoves);
-        this.nextMoves.addAll(bishop.nextMoves);
+        this.nextMoves.addAll(rook.getNextMoves());
+        this.nextMoves.addAll(bishop.getNextMoves());
 
     }
 

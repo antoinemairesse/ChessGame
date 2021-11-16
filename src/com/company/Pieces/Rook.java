@@ -46,7 +46,7 @@ public class Rook extends Piece {
             //Can move to case
             this.nextMoves.add(new Coordinates(this.xCase, y));
         } else {
-            if(p.color != this.color){
+            if(p.getColor() != this.color){
                 //Can capture piece
                 this.nextMoves.add(new Coordinates(this.xCase, y));
             }
@@ -62,7 +62,7 @@ public class Rook extends Piece {
             //Can move to case
             this.nextMoves.add(new Coordinates(x, this.yCase));
         } else {
-            if(p.color != this.color){
+            if(p.getColor() != this.color){
                 //Can capture piece
                 this.nextMoves.add(new Coordinates(x, this.yCase));
             }

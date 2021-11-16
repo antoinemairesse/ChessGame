@@ -36,7 +36,7 @@ public class Knight extends Piece {
             //Can move to case
             this.nextMoves.add(new Coordinates(this.xCase+offsetX, this.yCase+offsetY));
         } else {
-            if(p.color != this.color){
+            if(p.getColor() != this.color){
                 //Can capture piece
                 this.nextMoves.add(new Coordinates(this.xCase+offsetX, this.yCase+offsetY));
             }

@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 public class ChessModel {
-    LinkedList<Piece> pieces = new LinkedList<>();
-    AutreEventNotifieur notifieur = new AutreEventNotifieur();
-    LinkedList<Case> cases = new LinkedList<>();
+    private LinkedList<Piece> pieces = new LinkedList<>();
+    private AutreEventNotifieur notifieur = new AutreEventNotifieur();
+    private LinkedList<Case> cases = new LinkedList<>();
 
     public ChessModel() {
 
@@ -22,8 +22,10 @@ public class ChessModel {
         } else {
             color = Color.WHITE;
         }
+        pieces.add(new King(5, 1, color));
+        pieces.add(new King(5, 7, Settings.SIDE));
 
-        pieces.add(new Pawn(1, 6, Settings.SIDE));
+        /*pieces.add(new Pawn(1, 6, Settings.SIDE));
         pieces.add(new Pawn(2, 6, Settings.SIDE));
         pieces.add(new Pawn(3, 6, Settings.SIDE));
         pieces.add(new Pawn(4, 6, Settings.SIDE));
@@ -58,7 +60,7 @@ public class ChessModel {
         pieces.add(new King(5, 1, color));
         pieces.add(new Bishop(6, 1, color));
         pieces.add(new Knight(7, 1, color));
-        pieces.add(new Rook(8, 1, color));
+        pieces.add(new Rook(8, 1, color));*/
 
         // Create board cases
         boolean colorTest = true;
@@ -75,7 +77,7 @@ public class ChessModel {
         }
 
         for (Piece piece : pieces) {
-            Case c = getCaseByCaseCoords(piece.xCase, piece.yCase);
+            Case c = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());
             if (c != null)
                 c.setPiece(piece);
         }
@@ -93,8 +95,8 @@ public class ChessModel {
         if (c != null)
             c.setHovered(true);
 
-        piece.coords.x = x - (Settings.CASE_SIZE * 0.5208); //
-        piece.coords.y = y - (Settings.CASE_SIZE * 0.6770);
+        piece.coords.setX(x - (Settings.CASE_SIZE * 0.5208));
+        piece.coords.setY(y - (Settings.CASE_SIZE * 0.6770));
         notifieur.diffuserAutreEvent(new AutreEvent(this, piece));
     }
 
@@ -105,9 +107,9 @@ public class ChessModel {
 
             //if a piece is on the case we want to go
             if ((p = getPieceByCoords(x, y)) != null) {
-                if (p.color != piece.color) {
+                if (p.getColor() != piece.getColor()) {
                     //remove piece from case who has it
-                    getCaseByCaseCoords(p.xCase, p.yCase).setPiece(null);
+                    getCaseByCaseCoords(p.getxCase(), p.getyCase()).setPiece(null);
                     pieces.remove(p);
                     if (p instanceof King) {
                         //TODO WIN
@@ -117,24 +119,24 @@ public class ChessModel {
             }
 
             // We delete piece in old case
-            Case ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
+            Case ca = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());
             if (ca != null)
                 ca.setPiece(null);
 
             //Calculate piece new case
-            piece.xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
-            piece.yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
+            piece.setxCase((int) Math.ceil((x / (double) Settings.CASE_SIZE)));
+            piece.setyCase((int) Math.ceil((y / (double) Settings.CASE_SIZE)));
 
             //Set piece in new case
-            ca = getCaseByCaseCoords(piece.xCase, piece.yCase);
+            ca = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());
             if (ca != null)
                 ca.setPiece(piece);
             pieceSound();
         }
 
         //Calculate piece new coordinates (centered in the new case)
-        piece.coords.x = (piece.xCase - 1) * ((double) Settings.REAL_WIDTH / Settings.WIDTH_CASES);
-        piece.coords.y = (piece.yCase - 1) * ((double) Settings.REAL_HEIGHT / Settings.HEIGHT_CASES);
+        piece.getCoords().setX((piece.getxCase() - 1) * ((double) Settings.REAL_WIDTH / Settings.WIDTH_CASES));
+        piece.getCoords().setY((piece.getyCase() - 1) * ((double) Settings.REAL_HEIGHT / Settings.HEIGHT_CASES));
 
         //Notify view that it needs to be repainted
         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
@@ -150,7 +152,7 @@ public class ChessModel {
         int xCase = (int) Math.ceil((x / (double) Settings.CASE_SIZE));
         int yCase = (int) Math.ceil((y / (double) Settings.CASE_SIZE));
         for (Piece piece : pieces) {
-            if (piece.xCase == xCase && piece.yCase == yCase) {
+            if (piece.getxCase() == xCase && piece.getyCase() == yCase) {
                 return piece;
             }
         }
@@ -159,7 +161,7 @@ public class ChessModel {
 
     public Piece getPieceByCase(int xCase, int yCase) {
         for (Piece piece : pieces) {
-            if (piece.xCase == xCase && piece.yCase == yCase) {
+            if (piece.getxCase() == xCase && piece.getyCase() == yCase) {
                 return piece;
             }
         }
@@ -177,7 +179,7 @@ public class ChessModel {
 
     public void setNextPossiblesMovesCasesHinted(LinkedList<Coordinates> nextPossiblesMoves) {
         for (Coordinates c : nextPossiblesMoves) {
-            Case ca = getCaseByCaseCoords((int) c.x, (int) c.y);
+            Case ca = getCaseByCaseCoords((int) c.getX(), (int) c.getY());
             if (ca != null) {
                 ca.setHinted(true);
             }
@@ -192,7 +194,7 @@ public class ChessModel {
         Case test;
         if (c != null) {
             for (Coordinates cd : now.nextMoves) {
-                test = getCaseByCaseCoords((int) cd.x, (int) cd.y);
+                test = getCaseByCaseCoords((int) cd.getX(), (int) cd.getY());
                 if (c == test) {
                     response = true;
                 }
@@ -224,4 +226,28 @@ public class ChessModel {
         clip.start();
     }
 
+
+    public LinkedList<Piece> getPieces() {
+        return pieces;
+    }
+
+    public void setPieces(LinkedList<Piece> pieces) {
+        this.pieces = pieces;
+    }
+
+    public AutreEventNotifieur getNotifieur() {
+        return notifieur;
+    }
+
+    public void setNotifieur(AutreEventNotifieur notifieur) {
+        this.notifieur = notifieur;
+    }
+
+    public LinkedList<Case> getCases() {
+        return cases;
+    }
+
+    public void setCases(LinkedList<Case> cases) {
+        this.cases = cases;
+    }
 }

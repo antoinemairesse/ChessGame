@@ -28,11 +28,11 @@ public class Pawn extends Piece {
             //Can move to case
             this.nextMoves.add(new Coordinates(this.xCase, this.yCase - (1 + colorDiff)));
         }
-        if ((p = model.getPieceByCase(this.xCase + 1, this.yCase - (1 + colorDiff))) != null && p.color != this.color) {
+        if ((p = model.getPieceByCase(this.xCase + 1, this.yCase - (1 + colorDiff))) != null && p.getColor() != this.color) {
             //can capture piece
             this.nextMoves.add(new Coordinates(this.xCase + 1, this.yCase - (1 + colorDiff)));
         }
-        if ((p = model.getPieceByCase(this.xCase - 1, this.yCase - (1 + colorDiff))) != null && p.color != this.color) {
+        if ((p = model.getPieceByCase(this.xCase - 1, this.yCase - (1 + colorDiff))) != null && p.getColor() != this.color) {
             //can capture piece
             this.nextMoves.add(new Coordinates(this.xCase - 1, this.yCase - (1 + colorDiff)));
         }
