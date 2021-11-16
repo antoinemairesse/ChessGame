@@ -9,11 +9,13 @@ public abstract class Piece {
     protected Image icon;
     protected Color color;
     protected LinkedList<Coordinates> nextMoves = new LinkedList<>();
+    protected Player player;
 
-    public Piece(int xCase, int yCase, Color color) {
+    public Piece(int xCase, int yCase, Color color, Player player) {
         this.xCase = xCase;
         this.yCase = yCase;
         this.color = color;
+        this.player = player;
         double x =  ((this.xCase - 1)*((double)Settings.REAL_WIDTH/Settings.WIDTH_CASES));
         double y = ((this.yCase - 1)*((double)Settings.REAL_HEIGHT/Settings.HEIGHT_CASES));
         this.coords = new Coordinates(x,y);

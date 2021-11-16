@@ -13,54 +13,61 @@ public class ChessModel {
     private LinkedList<Piece> pieces = new LinkedList<>();
     private AutreEventNotifieur notifieur = new AutreEventNotifieur();
     private LinkedList<Case> cases = new LinkedList<>();
+    public Player computer;
+    public Player player;
 
     public ChessModel() {
 
         Color color;
         if(Settings.SIDE == Color.WHITE){
             color = Color.BLACK;
+            player = new Player(Settings.PLAYER_NAME, true);
+            computer = new Player(Settings.COMPUTER_NAME, false);
         } else {
             color = Color.WHITE;
+            player = new Player(Settings.PLAYER_NAME, false);
+            computer = new Player(Settings.COMPUTER_NAME, true);
         }
-        pieces.add(new King(5, 1, color));
-        pieces.add(new King(5, 7, Settings.SIDE));
-
-        /*pieces.add(new Pawn(1, 6, Settings.SIDE));
-        pieces.add(new Pawn(2, 6, Settings.SIDE));
-        pieces.add(new Pawn(3, 6, Settings.SIDE));
-        pieces.add(new Pawn(4, 6, Settings.SIDE));
-        pieces.add(new Pawn(5, 6, Settings.SIDE));
-        pieces.add(new Pawn(6, 6, Settings.SIDE));
-        pieces.add(new Pawn(7, 6, Settings.SIDE));
-        pieces.add(new Pawn(8, 6, Settings.SIDE));
-
-        pieces.add(new Rook(1, 7, Settings.SIDE));
-        pieces.add(new Knight(2, 7, Settings.SIDE));
-        pieces.add(new Bishop(3, 7, Settings.SIDE));
-        pieces.add(new Queen(4, 7, Settings.SIDE));
-        pieces.add(new King(5, 7, Settings.SIDE));
-        pieces.add(new Bishop(6, 7, Settings.SIDE));
-        pieces.add(new Knight(7, 7, Settings.SIDE));
-        pieces.add(new Rook(8, 7, Settings.SIDE));
 
 
-        pieces.add(new Pawn(1, 2, color));
-        pieces.add(new Pawn(2, 2, color));
-        pieces.add(new Pawn(3, 2, color));
-        pieces.add(new Pawn(4, 2, color));
-        pieces.add(new Pawn(5, 2, color));
-        pieces.add(new Pawn(6, 2, color));
-        pieces.add(new Pawn(7, 2, color));
-        pieces.add(new Pawn(8, 2, color));
+        player.getPieces().add(new Pawn(1, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(2, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(3, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(4, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(5, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(6, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(7, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(8, 6, Settings.SIDE, player));
 
-        pieces.add(new Rook(1, 1, color));
-        pieces.add(new Knight(2, 1, color));
-        pieces.add(new Bishop(3, 1, color));
-        pieces.add(new Queen(4, 1, color));
-        pieces.add(new King(5, 1, color));
-        pieces.add(new Bishop(6, 1, color));
-        pieces.add(new Knight(7, 1, color));
-        pieces.add(new Rook(8, 1, color));*/
+        player.getPieces().add(new Rook(1, 7, Settings.SIDE, player));
+        player.getPieces().add(new Knight(2, 7, Settings.SIDE, player));
+        player.getPieces().add(new Bishop(3, 7, Settings.SIDE, player));
+        player.getPieces().add(new Queen(4, 7, Settings.SIDE, player));
+        player.getPieces().add(new King(5, 7, Settings.SIDE, player));
+        player.getPieces().add(new Bishop(6, 7, Settings.SIDE, player));
+        player.getPieces().add(new Knight(7, 7, Settings.SIDE, player));
+        player.getPieces().add(new Rook(8, 7, Settings.SIDE, player));
+
+        computer.getPieces().add(new Pawn(1, 2, color, computer));
+        computer.getPieces().add(new Pawn(2, 2, color, computer));
+        computer.getPieces().add(new Pawn(3, 2, color, computer));
+        computer.getPieces().add(new Pawn(4, 2, color, computer));
+        computer.getPieces().add(new Pawn(5, 2, color, computer));
+        computer.getPieces().add(new Pawn(6, 2, color, computer));
+        computer.getPieces().add(new Pawn(7, 2, color, computer));
+        computer.getPieces().add(new Pawn(8, 2, color, computer));
+
+        computer.getPieces().add(new Rook(1, 1, color, computer));
+        computer.getPieces().add(new Knight(2, 1, color, computer));
+        computer.getPieces().add(new Bishop(3, 1, color, computer));
+        computer.getPieces().add(new Queen(4, 1, color, computer));
+        computer.getPieces().add(new King(5, 1, color, computer));
+        computer.getPieces().add(new Bishop(6, 1, color, computer));
+        computer.getPieces().add(new Knight(7, 1, color, computer));
+        computer.getPieces().add(new Rook(8, 1, color, computer));
+
+        pieces.addAll(computer.getPieces());
+        pieces.addAll(player.getPieces());
 
         // Create board cases
         boolean colorTest = true;
@@ -123,9 +130,17 @@ public class ChessModel {
             if (ca != null)
                 ca.setPiece(null);
 
+            int oldX = piece.getxCase();
+            int oldY = piece.getyCase();
             //Calculate piece new case
             piece.setxCase((int) Math.ceil((x / (double) Settings.CASE_SIZE)));
             piece.setyCase((int) Math.ceil((y / (double) Settings.CASE_SIZE)));
+
+            //Player has played
+            if(oldX != piece.getxCase() || oldY != piece.getyCase()){
+                computer.setCanPlay(!computer.isCanPlay());
+                player.setCanPlay(!player.isCanPlay());
+            }
 
             //Set piece in new case
             ca = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());

@@ -27,8 +27,18 @@ public class ChessController implements MouseListener, MouseMotionListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        Color color;
+        if(Settings.SIDE == Color.WHITE){
+            color = Color.BLACK;
+        } else {
+            color = Color.WHITE;
+        }
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
-
+        if(selectedPiece != null && selectedPiece.color == Settings.SIDE && !model.player.isCanPlay()){
+            selectedPiece = null;
+        }else if(selectedPiece != null && selectedPiece.color == color && !model.computer.isCanPlay()){
+            selectedPiece = null;
+        }
         if(selectedPiece != null){
             selectedPiece.nextPossibleMoves(model);
             model.setNextPossiblesMovesCasesHinted(selectedPiece.nextMoves);

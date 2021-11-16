@@ -15,6 +15,10 @@ public final class Settings {
     public static final int RATIO_HEIGHT_CASES = (Settings.REAL_HEIGHT / Settings.HEIGHT_CASES);
     public static final Color CASE_COLOR1 = Color.decode("#769656");
     public static final Color CASE_COLOR2 = Color.decode("#EEEED2");
+    public static final double PLAY_TIME = 180.0; // time in seconds
+    public static final String PLAYER_NAME = "Antoine";
+    public static final String COMPUTER_NAME = "Machine";
+
     private Settings(){
     }
 }

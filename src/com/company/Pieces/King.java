@@ -8,8 +8,8 @@ import java.util.LinkedList;
 
 public class King extends Piece {
     public boolean movesCalculated = false;
-    public King(int xCase, int yCase, Color color) {
-        super(xCase, yCase, color);
+    public King(int xCase, int yCase, Color color, Player player) {
+        super(xCase, yCase, color, player);
         if (color == Color.BLACK) {
             this.icon = new ImageIcon("resources/bk.png").getImage();
         } else {

@@ -1,16 +1,13 @@
 package com.company.Pieces;
 
-import com.company.ChessModel;
-import com.company.Coordinates;
-import com.company.Piece;
-import com.company.Settings;
+import com.company.*;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Bishop extends Piece {
-    public Bishop(int xCase, int yCase, Color color) {
-        super(xCase, yCase, color);
+    public Bishop(int xCase, int yCase, Color color, Player player) {
+        super(xCase, yCase, color, player);
         if (color == Color.BLACK) {
             this.setIcon(new ImageIcon("resources/bb.png").getImage());
         } else {
