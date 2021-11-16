@@ -88,7 +88,7 @@ public class ChessModel {
             if (c != null)
                 c.setPiece(piece);
         }
-
+        // TODO if player side is black make first move
     }
 
     public void move(Piece piece, int x, int y) {
@@ -161,6 +161,7 @@ public class ChessModel {
             c.setHovered(false);
             c.setHinted(false);
         }
+        computerMove();
     }
 
     public Piece getPieceByCoords(int x, int y) {
@@ -239,6 +240,27 @@ public class ChessModel {
             lineUnavailableException.printStackTrace();
         }
         clip.start();
+    }
+
+    public void computerMove(){
+        /*computer choses a random piece and looks if it has any possible moves
+          if it doesn't then we choose another piece again and again...
+          if there is at least one move execute one randomly*/
+        if(computer.isCanPlay()){
+            int lengthPieces = computer.getPieces().toArray().length - 1;
+            int random = (int) (Math.random() * lengthPieces);
+            Piece p = computer.getPieces().get(random);
+            p.nextPossibleMoves(this);
+            while(p.nextMoves.toArray().length <= 0){
+                random = (int) (Math.random() * lengthPieces);
+                p = computer.getPieces().get(random);
+                p.nextPossibleMoves(this);
+            }
+            int lengthMoves = p.nextMoves.toArray().length - 1;
+            random = (int) (Math.random() * lengthMoves);
+            Coordinates move = p.nextMoves.get(random);
+            place(p, (int) move.getX()*Settings.CASE_SIZE, (int) move.getY()*Settings.CASE_SIZE);
+        }
     }
 
 

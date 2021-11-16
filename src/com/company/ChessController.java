@@ -4,16 +4,13 @@ import com.company.Pieces.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Set;
 
 public class ChessController implements MouseListener, MouseMotionListener {
     private ChessModel model;
     private ChessView view;
     private Piece selectedPiece = null;
 
-    //Collection de piece blanc noir
-    //l'ordi choisi une piece random dans la collection puis regarde les possibles moves
-    // si y'en a pas alors il rechoisi
-    //si il y en a au moins un il execute un random
 
     public ChessController(ChessModel model, ChessView view) {
         this.model = model;
@@ -27,16 +24,10 @@ public class ChessController implements MouseListener, MouseMotionListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        Color color;
-        if(Settings.SIDE == Color.WHITE){
-            color = Color.BLACK;
-        } else {
-            color = Color.WHITE;
-        }
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
         if(selectedPiece != null && selectedPiece.color == Settings.SIDE && !model.player.isCanPlay()){
             selectedPiece = null;
-        }else if(selectedPiece != null && selectedPiece.color == color && !model.computer.isCanPlay()){
+        }else if(selectedPiece != null && selectedPiece.color != Settings.SIDE){
             selectedPiece = null;
         }
         if(selectedPiece != null){
