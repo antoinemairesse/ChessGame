@@ -4,7 +4,12 @@ import com.company.Pieces.Pawn;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
+import java.util.Set;
 
 public class BoardView extends JPanel implements AutreEventListener {
 
@@ -24,35 +29,89 @@ public class BoardView extends JPanel implements AutreEventListener {
     public void paint(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
 
-        for (Case c : cases) {
-            g.setColor(c.getColor());
-            g.fillRect(c.getX() * c.getWidth(), c.getY() * c.getHeight(), c.getWidth(), c.getHeight());
-        }
-
-        paintPieces(model.getPieces(), g);
-
-        //White border on hovering case.
-        for (Case c : cases) {
-            if (c.isHovered()) {
-                g.setColor(Color.white);
-                g2D.setStroke(new BasicStroke(7));
-                g.drawRect(c.getX() * c.getWidth(), c.getY() * c.getHeight(), c.getWidth(), c.getHeight());
+        if(!model.isGameWon && !model.isGameLost) {
+            for (Case c : cases) {
+                g.setColor(c.getColor());
+                g.fillRect(c.getX() * c.getWidth(), c.getY() * c.getHeight(), c.getWidth(), c.getHeight());
             }
-            if (c.isHinted()) {
-                if (c.getPiece() != null) { // Can kill
-                    g.setColor(new Color(255, 0, 0, 100));
-                } else { // Empty case
-                    g.setColor(new Color(0, 0, 0, 50));
+
+            paintPieces(model.getPieces(), g);
+
+            //White border on hovering case.
+            for (Case c : cases) {
+                if (c.isHovered()) {
+                    g.setColor(Color.white);
+                    g2D.setStroke(new BasicStroke(7));
+                    g.drawRect(c.getX() * c.getWidth(), c.getY() * c.getHeight(), c.getWidth(), c.getHeight());
                 }
-                g.fillOval(
-                        c.getX() * c.getWidth() + (c.getWidth() / 3),
-                        c.getY() * c.getHeight() + (c.getHeight() / 3),
-                        c.getHeight() / 3,
-                        c.getHeight() / 3
-                );
+                if (c.isHinted()) {
+                    if (c.getPiece() != null) { // Can kill
+                        g.setColor(new Color(255, 0, 0, 100));
+                    } else { // Empty case
+                        g.setColor(new Color(0, 0, 0, 50));
+                    }
+                    g.fillOval(
+                            c.getX() * c.getWidth() + (c.getWidth() / 3),
+                            c.getY() * c.getHeight() + (c.getHeight() / 3),
+                            c.getHeight() / 3,
+                            c.getHeight() / 3
+                    );
+                }
             }
+            paintCaseNumber(g);
+            paintTimers(g);
+            paintNames(g);
         }
-        paintCaseNumber(g);
+        if(model.isGameWon){
+            g.setColor(Color.white);
+            g.fillRect(0,0, 1000, 1000);
+            Font font = new Font("", Font.BOLD, (int) (Settings.CASE_SIZE * 0.8));
+            g.setFont(font);
+            g.setColor(Color.GREEN);
+            centerString(g,"You won !!", new Rectangle(0,0,Settings.REAL_WIDTH,Settings.REAL_HEIGHT),font);
+            Timer tm = new Timer(1000, e -> EventQueue.invokeLater(() -> {
+                 model.isGameWon = false;
+                 repaint();
+             }));
+            tm.setRepeats(false);
+            tm.start();
+        }
+    }
+
+    public void centerString(Graphics g, String s, Rectangle r, Font font) {
+        FontRenderContext frc =
+                new FontRenderContext(null, true, true);
+
+        Rectangle2D r2D = font.getStringBounds(s, frc);
+        int rWidth = (int) Math.round(r2D.getWidth());
+        int rHeight = (int) Math.round(r2D.getHeight());
+        int rX = (int) Math.round(r2D.getX());
+        int rY = (int) Math.round(r2D.getY());
+
+        int a = (r.width / 2) - (rWidth / 2) - rX;
+        int b = (r.height / 2) - (rHeight / 2) - rY;
+
+        g.setFont(font);
+        g.drawString(s, r.x + a, r.y + b);
+    }
+
+    private void paintTimers(Graphics g){
+        g.setColor(Color.DARK_GRAY);
+        Rectangle r1 = new Rectangle(0,Settings.REAL_HEIGHT, Settings.RATIO_WIDTH_CASES*2, (int) (Settings.RATIO_WIDTH_CASES/1.5));
+        Rectangle r2 = new Rectangle((Settings.REAL_WIDTH - Settings.RATIO_WIDTH_CASES*2),Settings.REAL_HEIGHT, Settings.RATIO_WIDTH_CASES*2, (int) (Settings.RATIO_WIDTH_CASES/1.5));
+        g.fillRect(r1.x, r1.y, r1.width, r1.height);
+        g.fillRect(r2.x, r2.y, r2.width, r2.height);
+        g.setColor(Color.WHITE);
+        centerString(g, String.format("%.2f", model.player.getTimeLeft()), r1 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.5)));
+        centerString(g, String.format("%.2f", model.computer.getTimeLeft()), r2 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.5)));
+    }
+
+    private void paintNames(Graphics g){
+        g.setColor(Color.DARK_GRAY);
+        Rectangle r1 = new Rectangle(0, (Settings.REAL_HEIGHT + (Settings.RATIO_WIDTH_CASES/2)), Settings.RATIO_WIDTH_CASES*2, (int) (Settings.RATIO_WIDTH_CASES/1.5));
+        Rectangle r2 = new Rectangle((Settings.REAL_WIDTH - Settings.RATIO_WIDTH_CASES*2), (Settings.REAL_HEIGHT + (Settings.RATIO_WIDTH_CASES/2)), Settings.RATIO_WIDTH_CASES*2, (int) (Settings.RATIO_WIDTH_CASES/1.5));
+        centerString(g, Settings.PLAYER_NAME, r1 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.25)));
+        centerString(g, Settings.COMPUTER_NAME, r2 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.25)));
     }
 
     private void paintPieces(LinkedList<Piece> pieces, Graphics g) {

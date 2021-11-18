@@ -8,10 +8,45 @@ public class Player {
     private double timeLeft = Settings.PLAY_TIME;
     private boolean canPlay;
     private LinkedList<Piece> captured = new LinkedList<>();
+    private static long chrono = 0;
+    private boolean chronoStarted = false;
 
     public Player(String name, boolean canPlay) {
         this.name = name;
         this.canPlay = canPlay;
+        if(canPlay){
+            startChrono();
+        }
+    }
+
+    public void startChrono(){
+        chrono = java.lang.System.currentTimeMillis();
+        chronoStarted = true;
+    }
+
+    public void stopChrono(){
+        if(!chronoStarted){
+            System.out.println("*************************************");
+        }
+        timeLeft -= ((java.lang.System.currentTimeMillis() - chrono)/1000.0);
+        chronoStarted = false;
+        chrono = 0;
+    }
+
+    public static long getChrono() {
+        return chrono;
+    }
+
+    public static void setChrono(long chrono) {
+        Player.chrono = chrono;
+    }
+
+    public boolean isChronoStarted() {
+        return chronoStarted;
+    }
+
+    public void setChronoStarted(boolean chronoStarted) {
+        this.chronoStarted = chronoStarted;
     }
 
     public boolean isCanPlay() {

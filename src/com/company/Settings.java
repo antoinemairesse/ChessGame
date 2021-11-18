@@ -3,7 +3,7 @@ package com.company;
 import java.awt.*;
 
 public final class Settings {
-    public static final Color SIDE = Color.WHITE;   //Color.WHITE or Color.BLACK
+    public static final Color SIDE = Color.BLACK;   //Color.WHITE or Color.BLACK
     public static final int CASE_SIZE = 100;
     public static final int WIDTH = (CASE_SIZE*8);
     public static final int HEIGHT = (CASE_SIZE*7);

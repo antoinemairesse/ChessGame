@@ -4,6 +4,7 @@ package com.company;
 import com.company.Pieces.*;
 
 import javax.sound.sampled.*;
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -15,80 +16,11 @@ public class ChessModel {
     private LinkedList<Case> cases = new LinkedList<>();
     public Player computer;
     public Player player;
+    public boolean isGameWon = false;
+    public boolean isGameLost = false;
 
     public ChessModel() {
-
-        Color color;
-        if(Settings.SIDE == Color.WHITE){
-            color = Color.BLACK;
-            player = new Player(Settings.PLAYER_NAME, true);
-            computer = new Player(Settings.COMPUTER_NAME, false);
-        } else {
-            color = Color.WHITE;
-            player = new Player(Settings.PLAYER_NAME, false);
-            computer = new Player(Settings.COMPUTER_NAME, true);
-        }
-
-
-        player.getPieces().add(new Pawn(1, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(2, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(3, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(4, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(5, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(6, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(7, 6, Settings.SIDE, player));
-        player.getPieces().add(new Pawn(8, 6, Settings.SIDE, player));
-
-        player.getPieces().add(new Rook(1, 7, Settings.SIDE, player));
-        player.getPieces().add(new Knight(2, 7, Settings.SIDE, player));
-        player.getPieces().add(new Bishop(3, 7, Settings.SIDE, player));
-        player.getPieces().add(new Queen(4, 7, Settings.SIDE, player));
-        player.getPieces().add(new King(5, 7, Settings.SIDE, player));
-        player.getPieces().add(new Bishop(6, 7, Settings.SIDE, player));
-        player.getPieces().add(new Knight(7, 7, Settings.SIDE, player));
-        player.getPieces().add(new Rook(8, 7, Settings.SIDE, player));
-
-        computer.getPieces().add(new Pawn(1, 2, color, computer));
-        computer.getPieces().add(new Pawn(2, 2, color, computer));
-        computer.getPieces().add(new Pawn(3, 2, color, computer));
-        computer.getPieces().add(new Pawn(4, 2, color, computer));
-        computer.getPieces().add(new Pawn(5, 2, color, computer));
-        computer.getPieces().add(new Pawn(6, 2, color, computer));
-        computer.getPieces().add(new Pawn(7, 2, color, computer));
-        computer.getPieces().add(new Pawn(8, 2, color, computer));
-
-        computer.getPieces().add(new Rook(1, 1, color, computer));
-        computer.getPieces().add(new Knight(2, 1, color, computer));
-        computer.getPieces().add(new Bishop(3, 1, color, computer));
-        computer.getPieces().add(new Queen(4, 1, color, computer));
-        computer.getPieces().add(new King(5, 1, color, computer));
-        computer.getPieces().add(new Bishop(6, 1, color, computer));
-        computer.getPieces().add(new Knight(7, 1, color, computer));
-        computer.getPieces().add(new Rook(8, 1, color, computer));
-
-        pieces.addAll(computer.getPieces());
-        pieces.addAll(player.getPieces());
-
-        // Create board cases
-        boolean colorTest = true;
-        for (int y = 0; y < Settings.HEIGHT_CASES; y++) {
-            for (int x = 0; x < Settings.WIDTH_CASES; x++) {
-                if (colorTest) {
-                    cases.add(new Case(x, y, Settings.CASE_COLOR1));
-                } else {
-                    cases.add(new Case(x, y, Settings.CASE_COLOR2));
-                }
-                colorTest = !colorTest;
-            }
-            colorTest = !colorTest;
-        }
-
-        for (Piece piece : pieces) {
-            Case c = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());
-            if (c != null)
-                c.setPiece(piece);
-        }
-        // TODO if player side is black make first move
+        createGame();
     }
 
     public void move(Piece piece, int x, int y) {
@@ -118,8 +50,12 @@ public class ChessModel {
                     //remove piece from case who has it
                     getCaseByCaseCoords(p.getxCase(), p.getyCase()).setPiece(null);
                     pieces.remove(p);
+                    //Player won
                     if (p instanceof King) {
-                        //TODO WIN
+                        isGameWon = true;
+                        notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
+                        resetGame();
+                        return;
                     } else {
                         //Add captured piece to player
                         if(!player.isCanPlay()){
@@ -144,6 +80,13 @@ public class ChessModel {
 
             //Player has played
             if(oldX != piece.getxCase() || oldY != piece.getyCase()){
+                if(computer.isChronoStarted()){
+                    computer.stopChrono();
+                    player.startChrono();
+                } else if (player.isChronoStarted()){
+                    player.stopChrono();
+                    computer.startChrono();
+                }
                 computer.setCanPlay(!computer.isCanPlay());
                 player.setCanPlay(!player.isCanPlay());
             }
@@ -167,7 +110,9 @@ public class ChessModel {
             c.setHovered(false);
             c.setHinted(false);
         }
-        computerMove();
+        if(computer.isCanPlay()){
+            computerMove();
+        }
     }
 
     public Piece getPieceByCoords(int x, int y) {
@@ -248,25 +193,109 @@ public class ChessModel {
         clip.start();
     }
 
-    public void computerMove(){
+    public void computerMove() {
         /*computer choses a random piece and looks if it has any possible moves
           if it doesn't then we choose another piece again and again...
           if there is at least one move execute one randomly*/
-        if(computer.isCanPlay()){
-            int lengthPieces = computer.getPieces().toArray().length - 1;
-            int random = (int) (Math.random() * lengthPieces);
-            Piece p = computer.getPieces().get(random);
+        int lengthPieces = computer.getPieces().toArray().length - 1;
+        int random = (int) (Math.random() * lengthPieces);
+        Piece p = computer.getPieces().get(random);
+        p.nextPossibleMoves(this);
+        while(p.nextMoves.toArray().length <= 0){
+            random = (int) (Math.random() * lengthPieces);
+            p = computer.getPieces().get(random);
             p.nextPossibleMoves(this);
-            while(p.nextMoves.toArray().length <= 0){
-                random = (int) (Math.random() * lengthPieces);
-                p = computer.getPieces().get(random);
-                p.nextPossibleMoves(this);
-            }
-            int lengthMoves = p.nextMoves.toArray().length - 1;
-            random = (int) (Math.random() * lengthMoves);
-            Coordinates move = p.nextMoves.get(random);
-            place(p, (int) move.getX()*Settings.CASE_SIZE, (int) move.getY()*Settings.CASE_SIZE);
         }
+        int lengthMoves = p.nextMoves.toArray().length - 1;
+        random = (int) (Math.random() * lengthMoves);
+        Coordinates move = p.nextMoves.get(random);
+        place(p, (int) move.getX()*Settings.CASE_SIZE, (int) move.getY()*Settings.CASE_SIZE);
+    }
+
+    public void createGame() {
+
+        Color color;
+        if(Settings.SIDE == Color.WHITE){
+            color = Color.BLACK;
+            player = new Player(Settings.PLAYER_NAME, true);
+            computer = new Player(Settings.COMPUTER_NAME, false);
+        } else {
+            color = Color.WHITE;
+            player = new Player(Settings.PLAYER_NAME, false);
+            computer = new Player(Settings.COMPUTER_NAME, true);
+        }
+
+
+        player.getPieces().add(new Pawn(1, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(2, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(3, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(4, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(5, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(6, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(7, 6, Settings.SIDE, player));
+        player.getPieces().add(new Pawn(8, 6, Settings.SIDE, player));
+
+        player.getPieces().add(new Rook(1, 7, Settings.SIDE, player));
+        player.getPieces().add(new Knight(2, 7, Settings.SIDE, player));
+        player.getPieces().add(new Bishop(3, 7, Settings.SIDE, player));
+        player.getPieces().add(new Queen(4, 7, Settings.SIDE, player));
+        player.getPieces().add(new King(5, 7, Settings.SIDE, player));
+        player.getPieces().add(new Bishop(6, 7, Settings.SIDE, player));
+        player.getPieces().add(new Knight(7, 7, Settings.SIDE, player));
+        player.getPieces().add(new Rook(8, 7, Settings.SIDE, player));
+
+        computer.getPieces().add(new Pawn(1, 2, color, computer));
+        computer.getPieces().add(new Pawn(2, 2, color, computer));
+        computer.getPieces().add(new Pawn(3, 2, color, computer));
+        computer.getPieces().add(new Pawn(4, 2, color, computer));
+        computer.getPieces().add(new Pawn(5, 2, color, computer));
+        computer.getPieces().add(new Pawn(6, 2, color, computer));
+        computer.getPieces().add(new Pawn(7, 2, color, computer));
+        computer.getPieces().add(new Pawn(8, 2, color, computer));
+
+        computer.getPieces().add(new Rook(1, 1, color, computer));
+        computer.getPieces().add(new Knight(2, 1, color, computer));
+        computer.getPieces().add(new Bishop(3, 1, color, computer));
+        computer.getPieces().add(new Queen(4, 1, color, computer));
+        computer.getPieces().add(new King(5, 1, color, computer));
+        computer.getPieces().add(new Bishop(6, 1, color, computer));
+        computer.getPieces().add(new Knight(7, 1, color, computer));
+        computer.getPieces().add(new Rook(8, 1, color, computer));
+
+        pieces.addAll(computer.getPieces());
+        pieces.addAll(player.getPieces());
+
+        // Create board cases
+        boolean colorTest = true;
+        for (int y = 0; y < Settings.HEIGHT_CASES; y++) {
+            for (int x = 0; x < Settings.WIDTH_CASES; x++) {
+                if (colorTest) {
+                    cases.add(new Case(x, y, Settings.CASE_COLOR1));
+                } else {
+                    cases.add(new Case(x, y, Settings.CASE_COLOR2));
+                }
+                colorTest = !colorTest;
+            }
+            colorTest = !colorTest;
+        }
+
+        for (Piece piece : pieces) {
+            Case c = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());
+            if (c != null)
+                c.setPiece(piece);
+        }
+        //if player side is black make computer first move
+        if(computer.isCanPlay()){
+            computerMove();
+        }
+    }
+
+    public void resetGame() {
+        pieces.clear();
+        cases.clear();
+        computer = null;
+        player = null;
+        createGame();
     }
 
 
