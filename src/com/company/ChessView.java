@@ -4,12 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ChessView extends JFrame {
-/*
-* Sur la vue tu bouges la piece ce qui provoque une action dans le controlleur qui va appeler par exemple la fonction move
-* du modèle qui lui va faire tout le traitement (affecter la nouvelle pos etc) et notifier (observer observable) la vue
-* du changement
-* */
-
     public ChessView(ChessController controller, ChessModel model) {
         super("Chess Game");
         this.setPreferredSize(new Dimension(Settings.WIDTH, (int) (Settings.HEIGHT+(Settings.CASE_SIZE*1.5))));
@@ -20,7 +14,6 @@ public class ChessView extends JFrame {
         this.addMouseListener(controller);
         this.addMouseMotionListener(controller);
         this.setVisible(true);
+        this.pack();
     }
-
-
 }

@@ -11,9 +11,9 @@ public class King extends Piece {
     public King(int xCase, int yCase, Color color, Player player) {
         super(xCase, yCase, color, player);
         if (color == Color.BLACK) {
-            this.icon = new ImageIcon("resources/bk.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"bk.png").getImage();
         } else {
-            this.icon = new ImageIcon("resources/wk.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"wk.png").getImage();
         }
     }
 

@@ -1,6 +1,6 @@
 package com.company;
 
-import com.company.Pieces.Pawn;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
-import java.util.Set;
 
 public class BoardView extends JPanel implements AutreEventListener {
 
@@ -17,12 +16,16 @@ public class BoardView extends JPanel implements AutreEventListener {
     private final ChessModel model;
     private final LinkedList<Case> cases;
 
-
     public BoardView(ChessView view, ChessModel model) {
         this.view = view;
         this.model = model;
         model.getNotifieur().addAutreEventListener(this);
         this.cases = model.getCases();
+        Timer timer = new Timer(50, e -> this.repaint());
+        timer.setRepeats(true);
+        timer.setCoalesce(true);
+        timer.setInitialDelay(0);
+        timer.start();
     }
 
     @Override
@@ -63,16 +66,29 @@ public class BoardView extends JPanel implements AutreEventListener {
             paintNames(g);
         }
         if(model.isGameWon){
-            g.setColor(Color.white);
-            g.fillRect(0,0, 1000, 1000);
+            /*g.setColor(Color.white);
+            g.fillRect(0,0, 1000, 1000);*/
             Font font = new Font("", Font.BOLD, (int) (Settings.CASE_SIZE * 0.8));
             g.setFont(font);
             g.setColor(Color.GREEN);
             centerString(g,"You won !!", new Rectangle(0,0,Settings.REAL_WIDTH,Settings.REAL_HEIGHT),font);
-            Timer tm = new Timer(1000, e -> EventQueue.invokeLater(() -> {
+            Timer tm = new Timer(1500, e -> EventQueue.invokeLater(() -> {
                  model.isGameWon = false;
                  repaint();
              }));
+            tm.setRepeats(false);
+            tm.start();
+        } else if (model.isGameLost) {
+            /*g.setColor(Color.white);
+            g.fillRect(0,0, 1000, 1000);*/
+            Font font = new Font("", Font.BOLD, (int) (Settings.CASE_SIZE * 0.8));
+            g.setFont(font);
+            g.setColor(Color.RED);
+            centerString(g,"You lost...", new Rectangle(0,0,Settings.REAL_WIDTH,Settings.REAL_HEIGHT),font);
+            Timer tm = new Timer(1500, e -> EventQueue.invokeLater(() -> {
+                model.isGameLost = false;
+                repaint();
+            }));
             tm.setRepeats(false);
             tm.start();
         }

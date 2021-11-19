@@ -9,9 +9,9 @@ public class Queen extends Piece {
     public Queen(int xCase, int yCase, Color color, Player player){
         super(xCase, yCase, color, player);
         if(color == Color.BLACK){
-            this.icon = new ImageIcon("resources/bq.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"bq.png").getImage();
         } else {
-            this.icon = new ImageIcon("resources/wq.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"wq.png").getImage();
         }
     }
 

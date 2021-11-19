@@ -9,9 +9,9 @@ public class Pawn extends Piece {
     public Pawn(int xCase, int yCase, Color color, Player player) {
         super(xCase, yCase, color, player);
         if (color == Color.BLACK) {
-            this.icon = new ImageIcon("resources/bp.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"bp.png").getImage();
         } else {
-            this.icon = new ImageIcon("resources/wp.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"wp.png").getImage();
         }
     }
 
@@ -35,4 +35,5 @@ public class Pawn extends Piece {
         }
 
     }
+
 }

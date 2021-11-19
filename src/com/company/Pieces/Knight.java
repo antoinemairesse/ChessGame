@@ -1,9 +1,6 @@
 package com.company.Pieces;
 
-import com.company.ChessModel;
-import com.company.Coordinates;
-import com.company.Piece;
-import com.company.Player;
+import com.company.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +9,9 @@ public class Knight extends Piece {
     public Knight(int xCase, int yCase, Color color, Player player){
         super(xCase, yCase, color, player);
         if(color == Color.BLACK){
-            this.icon = new ImageIcon("resources/bn.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"bn.png").getImage();
         } else {
-            this.icon = new ImageIcon("resources/wn.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"wn.png").getImage();
         }
     }
 

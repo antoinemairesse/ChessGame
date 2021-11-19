@@ -34,8 +34,15 @@ public class ChessModel {
         if (c != null)
             c.setHovered(true);
 
-        piece.coords.setX(x - (Settings.CASE_SIZE * 0.5208));
-        piece.coords.setY(y - (Settings.CASE_SIZE * 0.6770));
+
+        //Piece can't go out of window
+        if(x > 0 && x < Settings.REAL_WIDTH){
+            piece.coords.setX(x - (Settings.CASE_SIZE * 0.5208));
+        }
+        if(y < Settings.REAL_HEIGHT-(Settings.CASE_SIZE*0.25) && y > 0+(Settings.CASE_SIZE*0.25)){
+            piece.coords.setY(y - (Settings.CASE_SIZE * 0.6770));
+        }
+
         notifieur.diffuserAutreEvent(new AutreEvent(this, piece));
     }
 
@@ -51,8 +58,13 @@ public class ChessModel {
                     getCaseByCaseCoords(p.getxCase(), p.getyCase()).setPiece(null);
                     pieces.remove(p);
                     //Player won
-                    if (p instanceof King) {
+                    if (p instanceof King && p.getColor() != Settings.SIDE) {
                         isGameWon = true;
+                        notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
+                        resetGame();
+                        return;
+                    } else if (p instanceof King && p.getColor() == Settings.SIDE){
+                        isGameLost = true;
                         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                         resetGame();
                         return;
@@ -74,9 +86,12 @@ public class ChessModel {
 
             int oldX = piece.getxCase();
             int oldY = piece.getyCase();
+
             //Calculate piece new case
             piece.setxCase((int) Math.ceil((x / (double) Settings.CASE_SIZE)));
             piece.setyCase((int) Math.ceil((y / (double) Settings.CASE_SIZE)));
+
+
 
             //Player has played
             if(oldX != piece.getxCase() || oldY != piece.getyCase()){

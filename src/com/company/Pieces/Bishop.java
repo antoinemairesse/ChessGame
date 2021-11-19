@@ -9,9 +9,9 @@ public class Bishop extends Piece {
     public Bishop(int xCase, int yCase, Color color, Player player) {
         super(xCase, yCase, color, player);
         if (color == Color.BLACK) {
-            this.setIcon(new ImageIcon("resources/bb.png").getImage());
+            this.setIcon(new ImageIcon(Settings.PIECE_PATH+"bb.png").getImage());
         } else {
-            this.setIcon(new ImageIcon("resources/wb.png").getImage());
+            this.setIcon(new ImageIcon(Settings.PIECE_PATH+"wb.png").getImage());
         }
     }
 

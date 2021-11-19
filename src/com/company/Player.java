@@ -82,7 +82,11 @@ public class Player {
     }
 
     public double getTimeLeft() {
-        return timeLeft;
+        if(isChronoStarted()){
+            return timeLeft - ((java.lang.System.currentTimeMillis() - chrono)/1000.0);
+        } else {
+            return timeLeft;
+        }
     }
 
     public void setTimeLeft(double timeLeft) {

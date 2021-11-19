@@ -9,9 +9,9 @@ public class Rook extends Piece {
     public Rook(int xCase, int yCase, Color color, Player player){
         super(xCase, yCase, color, player);
         if(color == Color.BLACK){
-            this.icon = new ImageIcon("resources/br.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"br.png").getImage();
         } else {
-            this.icon = new ImageIcon("resources/wr.png").getImage();
+            this.icon = new ImageIcon(Settings.PIECE_PATH+"wr.png").getImage();
         }
     }
 
