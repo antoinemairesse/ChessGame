@@ -1,12 +1,11 @@
 package com.company;
 
-import com.company.Pieces.*;
+import com.company.entity.Piece;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Set;
 
-public class ChessController implements MouseListener, MouseMotionListener {
+public class ChessController implements MouseListener, MouseMotionListener, ActionListener {
     private ChessModel model;
     private ChessView view;
     private Piece selectedPiece = null;
@@ -25,14 +24,14 @@ public class ChessController implements MouseListener, MouseMotionListener {
     @Override
     public void mousePressed(MouseEvent e) {
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
-        if(selectedPiece != null && selectedPiece.color == Settings.SIDE && !model.player.isCanPlay()){
+        /*if(selectedPiece != null && selectedPiece.getColor().equals(Settings.SIDE) && !model.player.isCanPlay()){
             selectedPiece = null;
-        }else if(selectedPiece != null && selectedPiece.color != Settings.SIDE){
+        }else if(selectedPiece != null && !selectedPiece.getColor().equals(Settings.SIDE)){
             selectedPiece = null;
-        }
+        }*/
         if(selectedPiece != null){
             selectedPiece.nextPossibleMoves(model);
-            model.setNextPossiblesMovesCasesHinted(selectedPiece.nextMoves);
+            model.setNextPossiblesMovesCasesHinted(selectedPiece.getNextMoves());
         }
     }
 
@@ -64,7 +63,7 @@ public class ChessController implements MouseListener, MouseMotionListener {
     @Override
     public void mouseMoved(MouseEvent e) {
         Piece p;
-        if((p = model.getPieceByCoords(e.getX(), e.getY())) != null && p.color == Settings.SIDE){
+        if((p = model.getPieceByCoords(e.getX(), e.getY())) != null && p.getColor().equals(Settings.SIDE)){
             this.view.setCursor(new Cursor(Cursor.HAND_CURSOR));
         }else{
             this.view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
@@ -93,5 +92,12 @@ public class ChessController implements MouseListener, MouseMotionListener {
 
     public void setSelectedPiece(Piece selectedPiece) {
         this.selectedPiece = selectedPiece;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getActionCommand().equals("Save")){
+            model.saveGame();
+        }
     }
 }

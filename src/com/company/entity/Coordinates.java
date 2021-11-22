@@ -1,6 +1,8 @@
-package com.company;
+package com.company.entity;
 
-public class Coordinates {
+import java.io.Serializable;
+
+public class Coordinates implements Serializable {
     private double x,y;
 
     public Coordinates(double x, double y) {

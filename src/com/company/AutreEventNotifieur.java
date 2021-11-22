@@ -1,7 +1,8 @@
 package com.company;
 import javax.swing.event.EventListenerList;
+import java.io.Serializable;
 
-public class AutreEventNotifieur {
+public class AutreEventNotifieur implements Serializable {
   private EventListenerList listenerList = new EventListenerList();
 
   public void addAutreEventListener(AutreEventListener listener) {

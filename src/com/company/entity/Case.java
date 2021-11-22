@@ -1,8 +1,11 @@
-package com.company;
+package com.company.entity;
+
+import com.company.Settings;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class Case {
+public class Case implements Serializable {
     private int x, y;
     private Color color;
     private boolean hinted = false;

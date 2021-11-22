@@ -1,16 +1,16 @@
 package com.company;
 
 
-import com.company.Pieces.*;
+import com.company.entity.*;
+import com.company.entity.Pieces.*;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedList;
 
-public class ChessModel {
+public class ChessModel implements Serializable{
     private LinkedList<Piece> pieces = new LinkedList<>();
     private AutreEventNotifieur notifieur = new AutreEventNotifieur();
     private LinkedList<Case> cases = new LinkedList<>();
@@ -20,7 +20,25 @@ public class ChessModel {
     public boolean isGameLost = false;
 
     public ChessModel() {
+        Timer timer = new Timer(100, e -> {
+            notifieur.diffuserAutreEvent(new AutreEvent(this, "timer"));
+            if(player.getTimeLeft() < 0){
+                isGameLost = true;
+                resetGame();
+            } else if (computer.getTimeLeft() < 0){
+                isGameWon = true;
+                resetGame();
+            }
+        });
+        timer.setRepeats(true);
+        timer.setCoalesce(true);
+        timer.setInitialDelay(0);
+        timer.start();
         createGame();
+    }
+
+    public ChessModel(FileInputStream fis){
+        createGameFromSave(fis);
     }
 
     public void move(Piece piece, int x, int y) {
@@ -37,10 +55,10 @@ public class ChessModel {
 
         //Piece can't go out of window
         if(x > 0 && x < Settings.REAL_WIDTH){
-            piece.coords.setX(x - (Settings.CASE_SIZE * 0.5208));
+            piece.getCoords().setX(x - (Settings.CASE_SIZE * 0.5208));
         }
         if(y < Settings.REAL_HEIGHT-(Settings.CASE_SIZE*0.25) && y > 0+(Settings.CASE_SIZE*0.25)){
-            piece.coords.setY(y - (Settings.CASE_SIZE * 0.6770));
+            piece.getCoords().setY(y - (Settings.CASE_SIZE * 0.6770));
         }
 
         notifieur.diffuserAutreEvent(new AutreEvent(this, piece));
@@ -53,17 +71,24 @@ public class ChessModel {
 
             //if a piece is on the case we want to go
             if ((p = getPieceByCoords(x, y)) != null) {
-                if (p.getColor() != piece.getColor()) {
+                if (!p.getColor().equals(piece.getColor())) {
+
                     //remove piece from case who has it
+                    if(p.getColor().equals(Settings.SIDE)){
+                        player.getPieces().remove(p);
+                    } else {
+                        computer.getPieces().remove(p);
+                    }
                     getCaseByCaseCoords(p.getxCase(), p.getyCase()).setPiece(null);
                     pieces.remove(p);
+
                     //Player won
-                    if (p instanceof King && p.getColor() != Settings.SIDE) {
+                    if (p instanceof King && !p.getColor().equals(Settings.SIDE)) {
                         isGameWon = true;
                         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                         resetGame();
                         return;
-                    } else if (p instanceof King && p.getColor() == Settings.SIDE){
+                    } else if (p instanceof King && p.getColor().equals(Settings.SIDE)){
                         isGameLost = true;
                         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                         resetGame();
@@ -175,7 +200,7 @@ public class ChessModel {
         Case c = getCaseByCaseCoords(xCase, yCase);
         Case test;
         if (c != null) {
-            for (Coordinates cd : now.nextMoves) {
+            for (Coordinates cd : now.getNextMoves()) {
                 test = getCaseByCaseCoords((int) cd.getX(), (int) cd.getY());
                 if (c == test) {
                     response = true;
@@ -187,50 +212,54 @@ public class ChessModel {
 
     public void pieceSound() {
         File file = new File("resources/piece_sound.wav");
-        AudioInputStream audioInputStream = null;
+        AudioInputStream audioInputStream;
         try {
             audioInputStream = AudioSystem.getAudioInputStream(file);
-        } catch (UnsupportedAudioFileException | IOException unsupportedAudioFileException) {
-            unsupportedAudioFileException.printStackTrace();
-        }
-        Clip clip = null;
-        try {
+            Clip clip;
             clip = AudioSystem.getClip();
-        } catch (LineUnavailableException lineUnavailableException) {
-            lineUnavailableException.printStackTrace();
-        }
-        try {
             assert clip != null;
             clip.open(audioInputStream);
-        } catch (LineUnavailableException | IOException lineUnavailableException) {
-            lineUnavailableException.printStackTrace();
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException unsupportedAudioFileException ) {
+            unsupportedAudioFileException.printStackTrace();
         }
-        clip.start();
     }
 
     public void computerMove() {
         /*computer choses a random piece and looks if it has any possible moves
           if it doesn't then we choose another piece again and again...
           if there is at least one move execute one randomly*/
-        int lengthPieces = computer.getPieces().toArray().length - 1;
-        int random = (int) (Math.random() * lengthPieces);
-        Piece p = computer.getPieces().get(random);
-        p.nextPossibleMoves(this);
-        while(p.nextMoves.toArray().length <= 0){
-            random = (int) (Math.random() * lengthPieces);
-            p = computer.getPieces().get(random);
+        if(computer.isCanPlay()){
+            int lengthPieces = computer.getPieces().toArray().length - 1;
+            int random = (int) (Math.random() * lengthPieces);
+            LinkedList<Piece> pc = new LinkedList<>(computer.getPieces());
+            Piece p = pc.get(random);
             p.nextPossibleMoves(this);
+            while(p.getNextMoves().toArray().length <= 0){
+                pc.remove(p);
+                random = (int) (Math.random() * lengthPieces);
+                p = computer.getPieces().get(random);
+                p.nextPossibleMoves(this);
+
+                //Computer cannot make any legal move, player wins
+                if(pc.isEmpty()){
+                    isGameWon = true;
+                    notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
+                    resetGame();
+                    return;
+                }
+            }
+            int lengthMoves = p.getNextMoves().toArray().length - 1;
+            random = (int) (Math.random() * lengthMoves);
+            Coordinates move = p.getNextMoves().get(random);
+            place(p, (int) move.getX()*Settings.CASE_SIZE, (int) move.getY()*Settings.CASE_SIZE);
+            computer.setCanPlay(false);
         }
-        int lengthMoves = p.nextMoves.toArray().length - 1;
-        random = (int) (Math.random() * lengthMoves);
-        Coordinates move = p.nextMoves.get(random);
-        place(p, (int) move.getX()*Settings.CASE_SIZE, (int) move.getY()*Settings.CASE_SIZE);
     }
 
     public void createGame() {
-
         Color color;
-        if(Settings.SIDE == Color.WHITE){
+        if(Settings.SIDE.equals(Color.WHITE)){
             color = Color.BLACK;
             player = new Player(Settings.PLAYER_NAME, true);
             computer = new Player(Settings.COMPUTER_NAME, false);
@@ -239,7 +268,6 @@ public class ChessModel {
             player = new Player(Settings.PLAYER_NAME, false);
             computer = new Player(Settings.COMPUTER_NAME, true);
         }
-
 
         player.getPieces().add(new Pawn(1, 6, Settings.SIDE, player));
         player.getPieces().add(new Pawn(2, 6, Settings.SIDE, player));
@@ -279,7 +307,60 @@ public class ChessModel {
 
         pieces.addAll(computer.getPieces());
         pieces.addAll(player.getPieces());
+        // Create board cases
+        boolean colorTest = true;
+        for (int y = 0; y < Settings.HEIGHT_CASES; y++) {
+            for (int x = 0; x < Settings.WIDTH_CASES; x++) {
+                if (colorTest) {
+                    cases.add(new Case(x, y, Settings.CASE_COLOR1));
+                } else {
+                    cases.add(new Case(x, y, Settings.CASE_COLOR2));
+                }
+                colorTest = !colorTest;
+            }
+            colorTest = !colorTest;
+        }
 
+        for (Piece piece : pieces) {
+            Case c = getCaseByCaseCoords(piece.getxCase(), piece.getyCase());
+            if (c != null)
+                c.setPiece(piece);
+        }
+        //if player side is black make computer first move
+        if(computer.isCanPlay()){
+            computerMove();
+        }
+    }
+
+    public void createGameFromSave(FileInputStream fis){
+        try{
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Save save = (Save) ois.readObject();
+            this.pieces = save.model.pieces;
+            this.computer = save.model.computer;
+            this.player = save.model.player;
+            this.isGameWon = save.model.isGameWon;
+            this.isGameLost = save.model.isGameLost;
+            this.notifieur = save.model.notifieur;
+            Settings.PLAYER_NAME = save.playerName;
+            Settings.COMPUTER_NAME = save.computerName;
+            Settings.CASE_SIZE = save.caseSize;
+            Settings.SIDE = save.side;
+            Settings.CASE_COLOR1 = save.caseColor1;
+            Settings.CASE_COLOR2 = save.caseColor2;
+            Settings.PIECE_PATH = save.piecePath;
+            for(Piece p : pieces){
+                p.setIcon();
+            }
+            ois.close();
+            if(player.isCanPlay()){
+                player.startChrono();
+            } else {
+                computer.startChrono();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         // Create board cases
         boolean colorTest = true;
         for (int y = 0; y < Settings.HEIGHT_CASES; y++) {
@@ -311,6 +392,34 @@ public class ChessModel {
         computer = null;
         player = null;
         createGame();
+    }
+
+    public void saveGame(){
+        if(player.isChronoStarted()){
+            player.stopChrono();
+        } else {
+            computer.stopChrono();
+        }
+        JFileChooser jFileChooser = new JFileChooser();
+        int response = jFileChooser.showSaveDialog(null);
+        if(response == JFileChooser.APPROVE_OPTION){
+            try{
+                FileOutputStream fileOut = new FileOutputStream(jFileChooser.getSelectedFile()+".txt");
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                Save save = new Save(this, Settings.PLAYER_NAME, Settings.COMPUTER_NAME, Settings.CASE_SIZE, Settings.SIDE, Settings.CASE_COLOR1, Settings.CASE_COLOR2, Settings.PIECE_PATH);
+                out.writeObject(save);
+                out.close();
+                fileOut.close();
+                System.out.println("Saved !");
+                if(player.isCanPlay()){
+                    player.startChrono();
+                } else {
+                    computer.startChrono();
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
     }
 
 

@@ -1,18 +1,15 @@
-package com.company.Pieces;
+package com.company.entity.Pieces;
 
 import com.company.*;
+import com.company.entity.Piece;
+import com.company.entity.Player;
 
-import javax.swing.*;
 import java.awt.*;
 
 public class Queen extends Piece {
+
     public Queen(int xCase, int yCase, Color color, Player player){
         super(xCase, yCase, color, player);
-        if(color == Color.BLACK){
-            this.icon = new ImageIcon(Settings.PIECE_PATH+"bq.png").getImage();
-        } else {
-            this.icon = new ImageIcon(Settings.PIECE_PATH+"wq.png").getImage();
-        }
     }
 
     @Override

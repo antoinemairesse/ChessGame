@@ -1,18 +1,15 @@
-package com.company.Pieces;
+package com.company.entity.Pieces;
 
 import com.company.*;
+import com.company.entity.Coordinates;
+import com.company.entity.Piece;
+import com.company.entity.Player;
 
-import javax.swing.*;
 import java.awt.*;
 
 public class Bishop extends Piece {
     public Bishop(int xCase, int yCase, Color color, Player player) {
         super(xCase, yCase, color, player);
-        if (color == Color.BLACK) {
-            this.setIcon(new ImageIcon(Settings.PIECE_PATH+"bb.png").getImage());
-        } else {
-            this.setIcon(new ImageIcon(Settings.PIECE_PATH+"wb.png").getImage());
-        }
     }
 
     @Override
@@ -26,7 +23,7 @@ public class Bishop extends Piece {
                 //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase + offset, this.yCase + offset));
             } else {
-                if (p.getColor() != this.color) {
+                if (!p.getColor().equals(this.color)) {
                     //Can capture piece
                     this.nextMoves.add(new Coordinates(this.xCase + offset, this.yCase + offset));
                 }
@@ -42,7 +39,7 @@ public class Bishop extends Piece {
                 //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase - offset, this.yCase - offset));
             } else {
-                if (p.getColor() != this.color) {
+                if (!p.getColor().equals(this.color)) {
                     //Can capture piece
                     this.nextMoves.add(new Coordinates(this.xCase - offset, this.yCase - offset));
                 }
@@ -58,7 +55,7 @@ public class Bishop extends Piece {
                 //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase + offset, this.yCase - offset));
             } else {
-                if (p.getColor() != this.color) {
+                if (!p.getColor().equals(this.color)) {
                     //Can capture piece
                     this.nextMoves.add(new Coordinates(this.xCase + offset, this.yCase - offset));
                 }
@@ -74,7 +71,7 @@ public class Bishop extends Piece {
                 //Can move to case
                 this.nextMoves.add(new Coordinates(this.xCase - offset, this.yCase + offset));
             } else {
-                if (p.getColor() != this.color) {
+                if (!p.getColor().equals(this.color)) {
                     //Can capture piece
                     this.nextMoves.add(new Coordinates(this.xCase - offset, this.yCase + offset));
                 }

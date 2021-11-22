@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class Menu extends JFrame {
     public Menu(){
@@ -53,8 +56,8 @@ public class Menu extends JFrame {
         });
         p.add(computerNameSubmit);
 
-        String[] pieceChoice = { "Ciel","Bases", "Neo","Alpha","SalleDeJeux"};
-        String[] boardChoice = { "Vert","Bleu", "Brun","Violet","Rouge"};
+        String[] pieceChoice = { "Bases","Ciel", "Neo","Alpha","SalleDeJeux"};
+        String[] boardChoice = { "Bleu","Vert", "Brun","Violet","Rouge"};
         String[] sideChoice = { "White","Black"};
         String[] resolutionChoice = { "680*640","765*720", "850*800","935*880","1020*960"};
 
@@ -132,7 +135,7 @@ public class Menu extends JFrame {
         p.add(rc);
 
         JButton playButton = new JButton("PLAY");
-        playButton.setBounds(225,460,150,50);
+        playButton.setBounds(100,460,150,50);
         playButton.addActionListener(e -> {
             if(e.getActionCommand().equals("PLAY")){
                 Settings.reCalculate();
@@ -147,6 +150,34 @@ public class Menu extends JFrame {
             }
         });
         p.add(playButton);
+
+
+        JButton playFromSaveButton = new JButton("PLAY FROM SAVE");
+        playFromSaveButton.setBounds(350,460,150,50);
+        playFromSaveButton.addActionListener(e -> {
+            if(e.getActionCommand().equals("PLAY FROM SAVE")){
+                JFileChooser jFileChooser = new JFileChooser();
+                int response = jFileChooser.showOpenDialog(null);
+                if(response == JFileChooser.APPROVE_OPTION){
+                    try {
+                        FileInputStream fis = new FileInputStream(jFileChooser.getSelectedFile());
+                        ChessModel model = new ChessModel(fis);
+                        Settings.reCalculate();
+                        ChessController controller = new ChessController(model, null);
+                        ChessView view = new ChessView(controller, model);
+                        controller.setView(view);
+                        view.pack();
+                        view.setVisible(true);
+                        view.setLocationRelativeTo(null);
+                        this.dispose();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            }
+        });
+        p.add(playFromSaveButton);
+
 
         this.add(menu);
         this.add(p);

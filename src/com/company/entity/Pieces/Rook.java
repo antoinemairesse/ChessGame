@@ -1,18 +1,16 @@
-package com.company.Pieces;
+package com.company.entity.Pieces;
 
 import com.company.*;
+import com.company.entity.Coordinates;
+import com.company.entity.Piece;
+import com.company.entity.Player;
 
-import javax.swing.*;
 import java.awt.*;
 
 public class Rook extends Piece {
+
     public Rook(int xCase, int yCase, Color color, Player player){
         super(xCase, yCase, color, player);
-        if(color == Color.BLACK){
-            this.icon = new ImageIcon(Settings.PIECE_PATH+"br.png").getImage();
-        } else {
-            this.icon = new ImageIcon(Settings.PIECE_PATH+"wr.png").getImage();
-        }
     }
 
     @Override
@@ -43,7 +41,7 @@ public class Rook extends Piece {
             //Can move to case
             this.nextMoves.add(new Coordinates(this.xCase, y));
         } else {
-            if(p.getColor() != this.color){
+            if(!p.getColor().equals(this.color)){
                 //Can capture piece
                 this.nextMoves.add(new Coordinates(this.xCase, y));
             }
@@ -59,7 +57,7 @@ public class Rook extends Piece {
             //Can move to case
             this.nextMoves.add(new Coordinates(x, this.yCase));
         } else {
-            if(p.getColor() != this.color){
+            if(!p.getColor().equals(this.color)){
                 //Can capture piece
                 this.nextMoves.add(new Coordinates(x, this.yCase));
             }

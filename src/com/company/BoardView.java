@@ -2,10 +2,12 @@ package com.company;
 
 
 
+import com.company.entity.Case;
+import com.company.entity.Piece;
+import com.company.entity.Player;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
@@ -16,20 +18,22 @@ public class BoardView extends JPanel implements AutreEventListener {
     private final ChessModel model;
     private final LinkedList<Case> cases;
 
-    public BoardView(ChessView view, ChessModel model) {
+    public BoardView(ChessView view, ChessModel model, ChessController controller) {
+        this.setBounds(0,Settings.REAL_HEIGHT,Settings.REAL_WIDTH,400);
+        this.setLayout(null);
+        JButton saveButton = new JButton("Save");
+        saveButton.setBounds((int) ((Settings.REAL_WIDTH/2)-(Settings.CASE_SIZE*0.75)), (int) (Settings.REAL_HEIGHT+(Settings.CASE_SIZE*0.5)), (int) (Settings.CASE_SIZE*1.5),(int) (Settings.CASE_SIZE*0.5));
+        saveButton.addActionListener(controller);
+        this.add(saveButton);
         this.view = view;
         this.model = model;
         model.getNotifieur().addAutreEventListener(this);
         this.cases = model.getCases();
-        Timer timer = new Timer(50, e -> this.repaint());
-        timer.setRepeats(true);
-        timer.setCoalesce(true);
-        timer.setInitialDelay(0);
-        timer.start();
     }
 
     @Override
     public void paint(Graphics g) {
+        super.paint(g);
         Graphics2D g2D = (Graphics2D) g;
 
         if(!model.isGameWon && !model.isGameLost) {
@@ -66,8 +70,6 @@ public class BoardView extends JPanel implements AutreEventListener {
             paintNames(g);
         }
         if(model.isGameWon){
-            /*g.setColor(Color.white);
-            g.fillRect(0,0, 1000, 1000);*/
             Font font = new Font("", Font.BOLD, (int) (Settings.CASE_SIZE * 0.8));
             g.setFont(font);
             g.setColor(Color.GREEN);
@@ -79,8 +81,6 @@ public class BoardView extends JPanel implements AutreEventListener {
             tm.setRepeats(false);
             tm.start();
         } else if (model.isGameLost) {
-            /*g.setColor(Color.white);
-            g.fillRect(0,0, 1000, 1000);*/
             Font font = new Font("", Font.BOLD, (int) (Settings.CASE_SIZE * 0.8));
             g.setFont(font);
             g.setColor(Color.RED);
@@ -118,8 +118,17 @@ public class BoardView extends JPanel implements AutreEventListener {
         g.fillRect(r1.x, r1.y, r1.width, r1.height);
         g.fillRect(r2.x, r2.y, r2.width, r2.height);
         g.setColor(Color.WHITE);
-        centerString(g, String.format("%.2f", model.player.getTimeLeft()), r1 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.5)));
-        centerString(g, String.format("%.2f", model.computer.getTimeLeft()), r2 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.5)));
+
+        centerString(g, calculateTimer(model.player), r1 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.5)));
+
+        centerString(g, calculateTimer(model.computer), r2 ,new Font("", Font.BOLD, (int) (Settings.RATIO_WIDTH_CASES * 0.5)));
+    }
+
+    private String calculateTimer(Player player){
+        int min = (int) Math.floor(player.getTimeLeft()/60);
+        int sec = (int) player.getTimeLeft()-(min*60);
+        String test = sec < 10 ? "0" : "";
+        return min+":"+test+sec;
     }
 
     private void paintNames(Graphics g){
@@ -132,7 +141,7 @@ public class BoardView extends JPanel implements AutreEventListener {
 
     private void paintPieces(LinkedList<Piece> pieces, Graphics g) {
         for (Piece piece : pieces) {
-            g.drawImage(piece.icon, (int) piece.coords.getX(), (int) piece.coords.getY(), piece.size, piece.size, null);
+            g.drawImage(piece.getIcon(), (int) piece.getCoords().getX(), (int) piece.getCoords().getY(), piece.getSize(), piece.getSize(), null);
         }
     }
 
@@ -146,7 +155,7 @@ public class BoardView extends JPanel implements AutreEventListener {
             Object[] numbers = {1, 2, 3, 4, 5, 6, 7};
             Object[] invertedNumbers = {7, 6, 5, 4, 3, 2, 1};
 
-            if (Settings.SIDE == Color.BLACK) {
+            if (Settings.SIDE.equals(Color.BLACK)) {
                 invertArray(alphabet);
             }
 
@@ -161,7 +170,7 @@ public class BoardView extends JPanel implements AutreEventListener {
                     (Settings.REAL_HEIGHT - 15)
             );
             if (x < 7) {
-                if (Settings.SIDE == Color.BLACK) {
+                if (Settings.SIDE.equals(Color.BLACK)) {
                     g.drawString(
                             String.valueOf(numbers[x]),
                             3,
@@ -189,6 +198,9 @@ public class BoardView extends JPanel implements AutreEventListener {
         if (evt.getSource() instanceof ChessModel && evt.getDonnee() == "place") {
             this.repaint();
             this.view.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+        if (evt.getSource() instanceof ChessModel && evt.getDonnee() == "timer") {
+            this.repaint();
         }
     }
 

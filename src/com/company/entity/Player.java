@@ -1,8 +1,11 @@
-package com.company;
+package com.company.entity;
 
+import com.company.Settings;
+
+import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Player {
+public class Player implements Serializable {
     private String name;
     private LinkedList<Piece> pieces = new LinkedList<>();
     private double timeLeft = Settings.PLAY_TIME;
@@ -25,9 +28,6 @@ public class Player {
     }
 
     public void stopChrono(){
-        if(!chronoStarted){
-            System.out.println("*************************************");
-        }
         timeLeft -= ((java.lang.System.currentTimeMillis() - chrono)/1000.0);
         chronoStarted = false;
         chrono = 0;
