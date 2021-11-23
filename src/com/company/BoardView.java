@@ -25,6 +25,7 @@ public class BoardView extends JPanel implements AutreEventListener {
         saveButton.setBounds((int) ((Settings.REAL_WIDTH/2)-(Settings.CASE_SIZE*0.75)), (int) (Settings.REAL_HEIGHT+(Settings.CASE_SIZE*0.5)), (int) (Settings.CASE_SIZE*1.5),(int) (Settings.CASE_SIZE*0.5));
         saveButton.addActionListener(controller);
         this.add(saveButton);
+
         this.view = view;
         this.model = model;
         model.getNotifieur().addAutreEventListener(this);

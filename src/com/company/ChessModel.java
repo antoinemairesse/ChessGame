@@ -10,7 +10,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.LinkedList;
 
-public class ChessModel implements Serializable{
+public class ChessModel implements Serializable {
     private LinkedList<Piece> pieces = new LinkedList<>();
     private AutreEventNotifieur notifieur = new AutreEventNotifieur();
     private LinkedList<Case> cases = new LinkedList<>();
@@ -22,10 +22,10 @@ public class ChessModel implements Serializable{
     public ChessModel() {
         Timer timer = new Timer(100, e -> {
             notifieur.diffuserAutreEvent(new AutreEvent(this, "timer"));
-            if(player.getTimeLeft() < 0){
+            if (player.getTimeLeft() < 0) {
                 isGameLost = true;
                 resetGame();
-            } else if (computer.getTimeLeft() < 0){
+            } else if (computer.getTimeLeft() < 0) {
                 isGameWon = true;
                 resetGame();
             }
@@ -37,7 +37,7 @@ public class ChessModel implements Serializable{
         createGame();
     }
 
-    public ChessModel(FileInputStream fis){
+    public ChessModel(FileInputStream fis) {
         createGameFromSave(fis);
     }
 
@@ -54,10 +54,10 @@ public class ChessModel implements Serializable{
 
 
         //Piece can't go out of window
-        if(x > 0 && x < Settings.REAL_WIDTH){
+        if (x > 0 && x < Settings.REAL_WIDTH) {
             piece.getCoords().setX(x - (Settings.CASE_SIZE * 0.5208));
         }
-        if(y < Settings.REAL_HEIGHT-(Settings.CASE_SIZE*0.25) && y > 0+(Settings.CASE_SIZE*0.25)){
+        if (y < Settings.REAL_HEIGHT - (Settings.CASE_SIZE * 0.25) && y > 0 + (Settings.CASE_SIZE * 0.25)) {
             piece.getCoords().setY(y - (Settings.CASE_SIZE * 0.6770));
         }
 
@@ -74,7 +74,7 @@ public class ChessModel implements Serializable{
                 if (!p.getColor().equals(piece.getColor())) {
 
                     //remove piece from case who has it
-                    if(p.getColor().equals(Settings.SIDE)){
+                    if (p.getColor().equals(Settings.SIDE)) {
                         player.getPieces().remove(p);
                     } else {
                         computer.getPieces().remove(p);
@@ -88,14 +88,15 @@ public class ChessModel implements Serializable{
                         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                         resetGame();
                         return;
-                    } else if (p instanceof King && p.getColor().equals(Settings.SIDE)){
+                    } else if (p instanceof King && p.getColor().equals(Settings.SIDE)) {
                         isGameLost = true;
                         notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                         resetGame();
                         return;
-                    } else {
+                    } else if (!(p instanceof Pawn)) {
                         //Add captured piece to player
-                        if(!player.isCanPlay()){
+                        //We don't add pawns since they can't be used for pawn promotion
+                        if (!player.isCanPlay()) {
                             computer.getCaptured().add(p);
                         } else {
                             player.getCaptured().add(p);
@@ -117,13 +118,12 @@ public class ChessModel implements Serializable{
             piece.setyCase((int) Math.ceil((y / (double) Settings.CASE_SIZE)));
 
 
-
             //Player has played
-            if(oldX != piece.getxCase() || oldY != piece.getyCase()){
-                if(computer.isChronoStarted()){
+            if (oldX != piece.getxCase() || oldY != piece.getyCase()) {
+                if (computer.isChronoStarted()) {
                     computer.stopChrono();
                     player.startChrono();
-                } else if (player.isChronoStarted()){
+                } else if (player.isChronoStarted()) {
                     player.stopChrono();
                     computer.startChrono();
                 }
@@ -136,6 +136,32 @@ public class ChessModel implements Serializable{
             if (ca != null)
                 ca.setPiece(piece);
             pieceSound();
+
+            //Player want to promote pawn
+            if (piece.getyCase() == 1 && piece.getColor().equals(Settings.SIDE) && piece instanceof Pawn) {
+                Piece t = promotion(piece);
+                pieces.remove(piece);
+                player.getPieces().add(t);
+                if (ca != null)
+                    ca.setPiece(t);
+                pieces.add(t);
+            } else if(piece.getyCase() == 7 && !(piece.getColor().equals(Settings.SIDE)) && piece instanceof Pawn){
+                Piece t = computer.getCaptured().getFirst();
+                computer.getCaptured().remove(t);
+                t.setxCase(piece.getxCase());
+                t.setyCase(piece.getyCase());
+                t.setColor(piece.getColor());
+                t.setPlayer(piece.getPlayer());
+                t.setIcon();
+                double xx =  ((piece.getxCase() - 1)*((double)Settings.REAL_WIDTH/Settings.WIDTH_CASES));
+                double yy = ((piece.getyCase() - 1)*((double)Settings.REAL_HEIGHT/Settings.HEIGHT_CASES));
+                t.setCoords(new Coordinates(xx,yy));
+                pieces.remove(piece);
+                computer.getPieces().add(t);
+                if (ca != null)
+                    ca.setPiece(t);
+                pieces.add(t);
+            }
         }
 
         //Calculate piece new coordinates (centered in the new case)
@@ -150,7 +176,7 @@ public class ChessModel implements Serializable{
             c.setHovered(false);
             c.setHinted(false);
         }
-        if(computer.isCanPlay()){
+        if (computer.isCanPlay()) {
             computerMove();
         }
     }
@@ -220,7 +246,7 @@ public class ChessModel implements Serializable{
             assert clip != null;
             clip.open(audioInputStream);
             clip.start();
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException unsupportedAudioFileException ) {
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException unsupportedAudioFileException) {
             unsupportedAudioFileException.printStackTrace();
         }
     }
@@ -229,37 +255,45 @@ public class ChessModel implements Serializable{
         /*computer choses a random piece and looks if it has any possible moves
           if it doesn't then we choose another piece again and again...
           if there is at least one move execute one randomly*/
-        if(computer.isCanPlay()){
+        if (computer.isCanPlay()) {
             int lengthPieces = computer.getPieces().toArray().length - 1;
             int random = (int) (Math.random() * lengthPieces);
             LinkedList<Piece> pc = new LinkedList<>(computer.getPieces());
             Piece p = pc.get(random);
             p.nextPossibleMoves(this);
-            while(p.getNextMoves().toArray().length <= 0){
+            System.out.println("1");
+            while (p.getNextMoves().toArray().length <= 0) {
+                System.out.println("***************");
+                for(Piece t : pc){
+                    System.out.print(t+" ");
+                }
+                System.out.println("");
                 pc.remove(p);
-                random = (int) (Math.random() * lengthPieces);
-                p = computer.getPieces().get(random);
-                p.nextPossibleMoves(this);
 
                 //Computer cannot make any legal move, player wins
-                if(pc.isEmpty()){
+                if (pc.isEmpty()) {
+                    System.out.println("3");
                     isGameWon = true;
                     notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                     resetGame();
                     return;
                 }
+                lengthPieces = pc.toArray().length - 1;
+                random = (int) (Math.random() * lengthPieces);
+                p = pc.get(random);
+                p.nextPossibleMoves(this);
             }
             int lengthMoves = p.getNextMoves().toArray().length - 1;
             random = (int) (Math.random() * lengthMoves);
             Coordinates move = p.getNextMoves().get(random);
-            place(p, (int) move.getX()*Settings.CASE_SIZE, (int) move.getY()*Settings.CASE_SIZE);
+            place(p, (int) move.getX() * Settings.CASE_SIZE, (int) move.getY() * Settings.CASE_SIZE);
             computer.setCanPlay(false);
         }
     }
 
     public void createGame() {
         Color color;
-        if(Settings.SIDE.equals(Color.WHITE)){
+        if (Settings.SIDE.equals(Color.WHITE)) {
             color = Color.BLACK;
             player = new Player(Settings.PLAYER_NAME, true);
             computer = new Player(Settings.COMPUTER_NAME, false);
@@ -327,13 +361,13 @@ public class ChessModel implements Serializable{
                 c.setPiece(piece);
         }
         //if player side is black make computer first move
-        if(computer.isCanPlay()){
+        if (computer.isCanPlay()) {
             computerMove();
         }
     }
 
-    public void createGameFromSave(FileInputStream fis){
-        try{
+    public void createGameFromSave(FileInputStream fis) {
+        try {
             ObjectInputStream ois = new ObjectInputStream(fis);
             Save save = (Save) ois.readObject();
             this.pieces = save.model.pieces;
@@ -349,11 +383,11 @@ public class ChessModel implements Serializable{
             Settings.CASE_COLOR1 = save.caseColor1;
             Settings.CASE_COLOR2 = save.caseColor2;
             Settings.PIECE_PATH = save.piecePath;
-            for(Piece p : pieces){
+            for (Piece p : pieces) {
                 p.setIcon();
             }
             ois.close();
-            if(player.isCanPlay()){
+            if (player.isCanPlay()) {
                 player.startChrono();
             } else {
                 computer.startChrono();
@@ -381,7 +415,7 @@ public class ChessModel implements Serializable{
                 c.setPiece(piece);
         }
         //if player side is black make computer first move
-        if(computer.isCanPlay()){
+        if (computer.isCanPlay()) {
             computerMove();
         }
     }
@@ -394,24 +428,24 @@ public class ChessModel implements Serializable{
         createGame();
     }
 
-    public void saveGame(){
-        if(player.isChronoStarted()){
+    public void saveGame() {
+        if (player.isChronoStarted()) {
             player.stopChrono();
         } else {
             computer.stopChrono();
         }
         JFileChooser jFileChooser = new JFileChooser();
         int response = jFileChooser.showSaveDialog(null);
-        if(response == JFileChooser.APPROVE_OPTION){
-            try{
-                FileOutputStream fileOut = new FileOutputStream(jFileChooser.getSelectedFile()+".txt");
+        if (response == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileOutputStream fileOut = new FileOutputStream(jFileChooser.getSelectedFile() + ".txt");
                 ObjectOutputStream out = new ObjectOutputStream(fileOut);
                 Save save = new Save(this, Settings.PLAYER_NAME, Settings.COMPUTER_NAME, Settings.CASE_SIZE, Settings.SIDE, Settings.CASE_COLOR1, Settings.CASE_COLOR2, Settings.PIECE_PATH);
                 out.writeObject(save);
                 out.close();
                 fileOut.close();
                 System.out.println("Saved !");
-                if(player.isCanPlay()){
+                if (player.isCanPlay()) {
                     player.startChrono();
                 } else {
                     computer.startChrono();
@@ -445,5 +479,65 @@ public class ChessModel implements Serializable{
 
     public void setCases(LinkedList<Case> cases) {
         this.cases = cases;
+    }
+
+    public Piece promotion(Piece piece) {
+        boolean q = false, r = false, n = false, b = false;
+        Piece pq = null, pr = null, pn = null, pb = null;
+        for (Piece c : player.getCaptured()) {
+            if (c instanceof Queen) {
+                q = true;
+                pq = c;
+            } else if (c instanceof Rook) {
+                r = true;
+                pr = c;
+            } else if (c instanceof Knight) {
+                n = true;
+                pn = c;
+            } else if (c instanceof Bishop) {
+                b = true;
+                pb = c;
+            }
+        }
+        Test test = new Test();
+        JComboBox<String> jComboBox = new JComboBox<>();
+        if (q)
+            jComboBox.addItem("Queen");
+        if (r)
+            jComboBox.addItem("Rook");
+        if (n)
+            jComboBox.addItem("Knight");
+        if (b)
+            jComboBox.addItem("Bishop");
+        jComboBox.setBounds(125, 125, 150, 40);
+        jComboBox.setVisible(true);
+        test.add(jComboBox);
+        JButton jButton = new JButton("Promote");
+        jButton.setBounds(142, 200, 116, 30);
+        jButton.addActionListener(e -> {
+            if (e.getActionCommand().equals("Promote")) {
+                test.setVisible(false);
+                test.dispose();
+            }
+        });
+        test.add(jButton);
+        test.setLocationRelativeTo(null);
+        test.setVisible(true);
+        System.out.println(jComboBox.getSelectedItem());
+        Piece p;
+        if (jComboBox.getSelectedItem() == "Rook") {
+            p = new Rook(piece.getxCase(), piece.getyCase(), piece.getColor(), piece.getPlayer());
+            player.getCaptured().remove(pr);
+        } else if (jComboBox.getSelectedItem() == "Knight") {
+            p = new Knight(piece.getxCase(), piece.getyCase(), piece.getColor(), piece.getPlayer());
+            player.getCaptured().remove(pn);
+        } else if (jComboBox.getSelectedItem() == "Bishop") {
+            p = new Bishop(piece.getxCase(), piece.getyCase(), piece.getColor(), piece.getPlayer());
+            player.getCaptured().remove(pb);
+        } else {
+            p = new Queen(piece.getxCase(), piece.getyCase(), piece.getColor(), piece.getPlayer());
+            player.getCaptured().remove(pq);
+        }
+        return p;
     }
 }

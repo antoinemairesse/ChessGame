@@ -24,11 +24,11 @@ public class ChessController implements MouseListener, MouseMotionListener, Acti
     @Override
     public void mousePressed(MouseEvent e) {
         selectedPiece = model.getPieceByCoords(e.getX(), e.getY());
-        /*if(selectedPiece != null && selectedPiece.getColor().equals(Settings.SIDE) && !model.player.isCanPlay()){
+        if(selectedPiece != null && selectedPiece.getColor().equals(Settings.SIDE) && !model.player.isCanPlay()){
             selectedPiece = null;
         }else if(selectedPiece != null && !selectedPiece.getColor().equals(Settings.SIDE)){
             selectedPiece = null;
-        }*/
+        }
         if(selectedPiece != null){
             selectedPiece.nextPossibleMoves(model);
             model.setNextPossiblesMovesCasesHinted(selectedPiece.getNextMoves());
@@ -97,7 +97,9 @@ public class ChessController implements MouseListener, MouseMotionListener, Acti
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("Save")){
-            model.saveGame();
+            if(!model.isGameWon && !model.isGameLost){
+                model.saveGame();
+            }
         }
     }
 }

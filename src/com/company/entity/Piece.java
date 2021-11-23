@@ -30,6 +30,14 @@ public abstract class Piece implements Serializable {
 
     public abstract void nextPossibleMoves(ChessModel model);
 
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
     public int getxCase() {
         return xCase;
     }
