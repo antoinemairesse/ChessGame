@@ -8,6 +8,7 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class ChessModel implements Serializable {
@@ -19,10 +20,16 @@ public class ChessModel implements Serializable {
     private boolean isGameWon = false;
     private boolean isGameLost = false;
     private transient Menu menu;
+    public Node toPlay;
+    public Tree tree;
 
     public ChessModel() {
         timerSetup();
         createGame();
+        tree = new Tree(computer.getPieces().getFirst().getColor());
+        tree.getRoot().setBoard(boardToString(this.pieces));
+        buildTree(tree.getRoot(), 2);
+        toPlay = tree.getRoot();
     }
 
     public ChessModel(FileInputStream fis) {
@@ -175,7 +182,12 @@ public class ChessModel implements Serializable {
         }
 
         if (computer.isCanPlay()) {
-            computerMove();
+            //computerMove();
+            buildTree(toPlay, 2);
+            mini(toPlay, 2);
+            printBoard(toPlay.getBoard());
+            this.pieces = stringToBoard(toPlay.getBoard());
+            computer.setCanPlay(false);
         }
     }
 
@@ -321,8 +333,7 @@ public class ChessModel implements Serializable {
                 isGameWon = true;
                 notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                 resetGame();
-            }
-            else {
+            } else {
                 place(maxP, (int) maxC.getX() * Settings.CASE_SIZE, (int) maxC.getY() * Settings.CASE_SIZE);
                 computer.setCanPlay(false);
             }
@@ -578,6 +589,202 @@ public class ChessModel implements Serializable {
             player.getCaptured().remove(pq);
         }
         return p;
+    }
+
+    public String[][] boardToString(LinkedList<Piece> board) {
+        String[][] newBoard = new String[8][7]; // y x
+
+        for (Piece p : board) {
+            newBoard[p.getxCase() - 1][(p.getyCase() - 1)] = p.getAlias();
+        }
+
+        printBoard(newBoard);
+
+        return newBoard;
+    }
+
+    public void printBoard(String[][] board) {
+        System.out.println("********************************");
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[j][i] == null) {
+                    System.out.print("[  ] ");
+                } else {
+                    System.out.print("[" + board[j][i] + "] ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("********************************");
+    }
+
+    public LinkedList<Piece> stringToBoard(String[][] board) {
+        LinkedList<Piece> newBoard = new LinkedList<>();
+        Color color;
+        Player pp, cc;
+        if (Settings.SIDE.equals(Color.WHITE)) {
+            color = Color.BLACK;
+            pp = new Player(Settings.PLAYER_NAME, true);
+            cc = new Player(Settings.COMPUTER_NAME, false);
+        } else {
+            color = Color.WHITE;
+            pp = new Player(Settings.PLAYER_NAME, false);
+            cc = new Player(Settings.COMPUTER_NAME, true);
+        }
+
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (board[j][i] != null) {
+                    if (board[j][i].charAt(1) == 'B') {
+                        if ((color == Color.BLACK && (board[j][i].charAt(0) == 'B')) || (color == Color.WHITE && (board[j][i].charAt(0) == 'W'))) {
+                            newBoard.add(new Bishop(j + 1, i + 1, color, cc));
+                        } else {
+                            newBoard.add(new Bishop(j + 1, i + 1, Settings.SIDE, pp));
+                        }
+                    }
+
+                    if (board[j][i].charAt(1) == 'K') {
+                        if ((color == Color.BLACK && (board[j][i].charAt(0) == 'B')) || (color == Color.WHITE && (board[j][i].charAt(0) == 'W'))) {
+                            newBoard.add(new King(j + 1, i + 1, color, cc));
+                        } else {
+                            newBoard.add(new King(j + 1, i + 1, Settings.SIDE, pp));
+                        }
+                    }
+
+                    if (board[j][i].charAt(1) == 'N') {
+                        if ((color == Color.BLACK && (board[j][i].charAt(0) == 'B')) || (color == Color.WHITE && (board[j][i].charAt(0) == 'W'))) {
+                            newBoard.add(new Knight(j + 1, i + 1, color, cc));
+                        } else {
+                            newBoard.add(new Knight(j + 1, i + 1, Settings.SIDE, pp));
+                        }
+                    }
+
+                    if (board[j][i].charAt(1) == 'P') {
+                        if ((color == Color.BLACK && (board[j][i].charAt(0) == 'B')) || (color == Color.WHITE && (board[j][i].charAt(0) == 'W'))) {
+                            newBoard.add(new Pawn(j + 1, i + 1, color, cc));
+                        } else {
+                            newBoard.add(new Pawn(j + 1, i + 1, Settings.SIDE, pp));
+                        }
+                    }
+
+                    if (board[j][i].charAt(1) == 'Q') {
+                        if ((color == Color.BLACK && (board[j][i].charAt(0) == 'B')) || (color == Color.WHITE && (board[j][i].charAt(0) == 'W'))) {
+                            newBoard.add(new Queen(j + 1, i + 1, color, cc));
+                        } else {
+                            newBoard.add(new Queen(j + 1, i + 1, Settings.SIDE, pp));
+                        }
+                    }
+
+                    if (board[j][i].charAt(1) == 'R') {
+                        if ((color == Color.BLACK && (board[j][i].charAt(0) == 'B')) || (color == Color.WHITE && (board[j][i].charAt(0) == 'W'))) {
+                            newBoard.add(new Rook(j + 1, i + 1, color, cc));
+                        } else {
+                            newBoard.add(new Rook(j + 1, i + 1, Settings.SIDE, pp));
+                        }
+                    }
+                }
+            }
+        }
+        return newBoard;
+    }
+
+    public int evaluation(LinkedList<Piece> board){
+        int evalWhite = 0;
+        int evalBlack = 0;
+
+        for(Piece p : board){
+            if(p.getColor().equals(Color.WHITE)){
+                evalWhite += p.getValue();
+            }
+            else {
+                evalBlack += p.getValue();
+            }
+        }
+
+        return evalBlack - evalWhite;
+    }
+
+    public int maxi(Node node,int depth){
+        if(depth == 0){
+            return evaluation(stringToBoard(node.getBoard()));
+        }
+        int max = Integer.MIN_VALUE;
+        int score;
+        for(Node child : node.getChildren()){
+            score = mini(child, depth - 1);
+            if(score > max)
+                max = score;
+        }
+        return max;
+    }
+
+    public int mini(Node node,int depth){
+        if(depth == 0){
+            return -evaluation(stringToBoard(node.getBoard()));
+        }
+        int min = Integer.MAX_VALUE;
+        int score;
+        for(Node child : node.getChildren()){
+            score = maxi(child, depth - 1);
+            if(score < min){
+                if(depth == 2){
+                    this.toPlay = child;
+                }
+                min = score;
+            }
+        }
+        return min;
+    }
+
+    public void buildTree(Node parent, int depth) {
+        Color color;
+        if(parent.getColor().equals(Color.BLACK)){
+            color = Color.WHITE;
+        } else {
+            color = Color.BLACK;
+        }
+        LinkedList<Piece> board = stringToBoard(parent.getBoard());
+        for (Piece p : board) {
+            if(p.getColor().equals(parent.getColor())){
+                LinkedList<Piece> temp = new LinkedList<>(this.pieces);
+                this.pieces = board;
+                p.nextPossibleMoves(this);
+                this.pieces = temp;
+                for (Coordinates move : p.getNextMoves()) {
+                    Node node = new Node(color);
+                    node.setMove(move);
+                    node.setPiece(p);
+                    parent.getChildren().add(node);
+                    node.setBoard(executeMove(p, move, parent.getBoard()));
+                }
+            }
+        }
+        if (depth > 0) {
+            for (Node child : parent.getChildren()) {
+                buildTree(child, depth - 1);
+            }
+        }
+    }
+
+
+    public String[][] executeMove(Piece p, Coordinates move, String[][] board) {
+        String[][] newBoard = deepCopy(board);
+
+        newBoard[p.getxCase() - 1][p.getyCase() - 1] = null;
+        newBoard[(int) (move.getX() - 1)][(int) (move.getY() - 1)] = p.getAlias();
+
+        return newBoard;
+    }
+
+    public static String[][] deepCopy(String[][] original) {
+        if (original == null) {
+            return null;
+        }
+        final String[][] result = new String[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            result[i] = Arrays.copyOf(original[i], original[i].length);
+        }
+        return result;
     }
 
     public LinkedList<Piece> getPieces() {
