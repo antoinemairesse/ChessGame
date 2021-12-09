@@ -266,8 +266,10 @@ public class ChessModel implements Serializable {
         if (computer.isCanPlay()) {
             Piece maxP = null;
             Coordinates maxC = null;
-            int max = -100000;
+            int max = Integer.MIN_VALUE;
             int temp;
+
+            //get the best move out of all the pieces
             for (Piece p : computer.getPieces()) {
                 p.nextPossibleMoves(this);
                 for (Coordinates move : p.getNextMoves()) {
@@ -279,13 +281,19 @@ public class ChessModel implements Serializable {
                     }
                 }
             }
+            //Make random move
             if (max == 0) {
+
+                //Get random piece
                 int lengthPieces = computer.getPieces().toArray().length - 1;
                 int random = (int) (Math.random() * lengthPieces);
                 LinkedList<Piece> pc = new LinkedList<>(computer.getPieces());
                 Piece p = pc.get(random);
+
+                //if the piece has no moves
                 while (p.getNextMoves().toArray().length <= 0) {
                     pc.remove(p);
+
                     //Computer cannot make any legal move, player wins
                     if (pc.isEmpty()) {
                         isGameWon = true;
@@ -293,21 +301,28 @@ public class ChessModel implements Serializable {
                         resetGame();
                         break;
                     }
+
+                    //get new random piece
                     lengthPieces = pc.toArray().length - 1;
                     random = (int) (Math.random() * lengthPieces);
                     p = pc.get(random);
                     p.nextPossibleMoves(this);
                 }
+
+                //Get random move from the piece and place it
                 int lengthMoves = p.getNextMoves().toArray().length - 1;
                 random = (int) (Math.random() * lengthMoves);
                 Coordinates move = p.getNextMoves().get(random);
                 place(p, (int) move.getX() * Settings.CASE_SIZE, (int) move.getY() * Settings.CASE_SIZE);
                 computer.setCanPlay(false);
-            } else if (max == -100000) {
+            }
+            //No pieces / no moves
+            else if (max == Integer.MIN_VALUE) {
                 isGameWon = true;
                 notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
                 resetGame();
-            } else {
+            }
+            else {
                 place(maxP, (int) maxC.getX() * Settings.CASE_SIZE, (int) maxC.getY() * Settings.CASE_SIZE);
                 computer.setCanPlay(false);
             }
