@@ -9,7 +9,7 @@ import java.awt.*;
 public class Queen extends Piece {
 
     public Queen(int xCase, int yCase, Color color, Player player) {
-        super(xCase, yCase, color, player);
+        super(xCase, yCase, color, player, 90, "Q");
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.awt.*;
 public class Pawn extends Piece {
 
     public Pawn(int xCase, int yCase, Color color, Player player) {
-        super(xCase, yCase, color, player);
+        super(xCase, yCase, color, player, 10, "P");
     }
 
     @Override

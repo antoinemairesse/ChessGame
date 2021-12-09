@@ -15,9 +15,11 @@ public abstract class Piece implements Serializable {
     protected transient Image icon;
     protected Color color;
     protected LinkedList<Coordinates> nextMoves = new LinkedList<>();
-    protected transient Player player;
+    protected Player player;
+    protected int value;
+    protected String alias;
 
-    public Piece(int xCase, int yCase, Color color, Player player) {
+    public Piece(int xCase, int yCase, Color color, Player player, int val, String alias) {
         this.xCase = xCase;
         this.yCase = yCase;
         this.color = color;
@@ -25,10 +27,32 @@ public abstract class Piece implements Serializable {
         double x = ((this.xCase - 1) * ((double) Settings.REAL_WIDTH / Settings.WIDTH_CASES));
         double y = ((this.yCase - 1) * ((double) Settings.REAL_HEIGHT / Settings.HEIGHT_CASES));
         this.coords = new Coordinates(x, y);
+        this.value = val;
+        if (color.equals(Color.BLACK)) {
+            this.alias = "B" + alias;
+        } else {
+            this.alias = "W" + alias;
+        }
         this.setIcon();
     }
 
     public abstract void nextPossibleMoves(ChessModel model);
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
 
     public Player getPlayer() {
         return player;

@@ -11,7 +11,7 @@ import java.awt.*;
 public class Knight extends Piece {
 
     public Knight(int xCase, int yCase, Color color, Player player) {
-        super(xCase, yCase, color, player);
+        super(xCase, yCase, color, player, 30, "N");
     }
 
     @Override

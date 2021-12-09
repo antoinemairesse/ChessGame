@@ -10,7 +10,7 @@ import java.awt.*;
 
 public class Bishop extends Piece {
     public Bishop(int xCase, int yCase, Color color, Player player) {
-        super(xCase, yCase, color, player);
+        super(xCase, yCase, color, player, 30, "B");
     }
 
     @Override

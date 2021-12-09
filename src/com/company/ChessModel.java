@@ -58,7 +58,6 @@ public class ChessModel implements Serializable {
     //Place piece (if possible) in new case
     public void place(Piece piece, int x, int y) {
         Piece p;
-
         if (canMovePiece(x, y, piece)) {
 
             //if a piece is on the case we want to go
@@ -252,44 +251,66 @@ public class ChessModel implements Serializable {
         }
     }
 
-    /*computer choses a random piece and looks if it has any possible moves
-     if it doesn't then we choose another piece again and again...
-     if there is at least one move, it executes one randomly*/
+    // Returns 0 if the move is on an empty case, the value of the captured piece otherwise
+    public int evaluateMove(Coordinates move) {
+        Piece p = getCaseByCaseCoords((int) move.getX(), (int) move.getY()).getPiece();
+        if (p == null) {
+            return 0;
+        } else {
+            return p.getValue();
+        }
+    }
+
+    /*Execute the move with the highest value*/
     public void computerMove() {
         if (computer.isCanPlay()) {
-
-            //get random piece
-            int lengthPieces = computer.getPieces().toArray().length - 1;
-            int random = (int) (Math.random() * lengthPieces);
-            LinkedList<Piece> pc = new LinkedList<>(computer.getPieces());
-            Piece p = pc.get(random);
-            p.nextPossibleMoves(this);
-
-            //if the piece has no moves
-            while (p.getNextMoves().toArray().length <= 0) {
-                pc.remove(p);
-
-                //Computer cannot make any legal move, player wins
-                if (pc.isEmpty()) {
-                    isGameWon = true;
-                    notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
-                    resetGame();
-                    return;
-                }
-
-                //get new random piece
-                lengthPieces = pc.toArray().length - 1;
-                random = (int) (Math.random() * lengthPieces);
-                p = pc.get(random);
+            Piece maxP = null;
+            Coordinates maxC = null;
+            int max = -100000;
+            int temp;
+            for (Piece p : computer.getPieces()) {
                 p.nextPossibleMoves(this);
+                for (Coordinates move : p.getNextMoves()) {
+                    temp = evaluateMove(move);
+                    if (temp > max) {
+                        max = temp;
+                        maxC = move;
+                        maxP = p;
+                    }
+                }
             }
-
-            //Get random move from the piece and place it
-            int lengthMoves = p.getNextMoves().toArray().length - 1;
-            random = (int) (Math.random() * lengthMoves);
-            Coordinates move = p.getNextMoves().get(random);
-            place(p, (int) move.getX() * Settings.CASE_SIZE, (int) move.getY() * Settings.CASE_SIZE);
-            computer.setCanPlay(false);
+            if (max == 0) {
+                int lengthPieces = computer.getPieces().toArray().length - 1;
+                int random = (int) (Math.random() * lengthPieces);
+                LinkedList<Piece> pc = new LinkedList<>(computer.getPieces());
+                Piece p = pc.get(random);
+                while (p.getNextMoves().toArray().length <= 0) {
+                    pc.remove(p);
+                    //Computer cannot make any legal move, player wins
+                    if (pc.isEmpty()) {
+                        isGameWon = true;
+                        notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
+                        resetGame();
+                        break;
+                    }
+                    lengthPieces = pc.toArray().length - 1;
+                    random = (int) (Math.random() * lengthPieces);
+                    p = pc.get(random);
+                    p.nextPossibleMoves(this);
+                }
+                int lengthMoves = p.getNextMoves().toArray().length - 1;
+                random = (int) (Math.random() * lengthMoves);
+                Coordinates move = p.getNextMoves().get(random);
+                place(p, (int) move.getX() * Settings.CASE_SIZE, (int) move.getY() * Settings.CASE_SIZE);
+                computer.setCanPlay(false);
+            } else if (max == -100000) {
+                isGameWon = true;
+                notifieur.diffuserAutreEvent(new AutreEvent(this, "place"));
+                resetGame();
+            } else {
+                place(maxP, (int) maxC.getX() * Settings.CASE_SIZE, (int) maxC.getY() * Settings.CASE_SIZE);
+                computer.setCanPlay(false);
+            }
         }
     }
 
@@ -470,31 +491,6 @@ public class ChessModel implements Serializable {
         }
     }
 
-
-    public LinkedList<Piece> getPieces() {
-        return pieces;
-    }
-
-    public void setPieces(LinkedList<Piece> pieces) {
-        this.pieces = pieces;
-    }
-
-    public AutreEventNotifieur getNotifieur() {
-        return notifieur;
-    }
-
-    public void setNotifieur(AutreEventNotifieur notifieur) {
-        this.notifieur = notifieur;
-    }
-
-    public LinkedList<Case> getCases() {
-        return cases;
-    }
-
-    public void setCases(LinkedList<Case> cases) {
-        this.cases = cases;
-    }
-
     //Background task for timers
     public void timerSetup() {
         Timer timer = new Timer(100, e -> {
@@ -569,12 +565,24 @@ public class ChessModel implements Serializable {
         return p;
     }
 
-    public Player getComputer() {
-        return computer;
+    public LinkedList<Piece> getPieces() {
+        return pieces;
     }
 
-    public void setComputer(Player computer) {
-        this.computer = computer;
+    public AutreEventNotifieur getNotifieur() {
+        return notifieur;
+    }
+
+    public LinkedList<Case> getCases() {
+        return cases;
+    }
+
+    public void setCases(LinkedList<Case> cases) {
+        this.cases = cases;
+    }
+
+    public Player getComputer() {
+        return computer;
     }
 
     public Player getPlayer() {

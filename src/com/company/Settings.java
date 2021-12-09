@@ -9,11 +9,11 @@ public final class Settings {
     public static int WIDTH = (CASE_SIZE * 8);
     public static int REAL_WIDTH = WIDTH - 16; // without window border
     public static int RATIO_WIDTH_CASES = (Settings.REAL_WIDTH / Settings.WIDTH_CASES);
+    public static int HEIGHT_CASES = 7;
+    public static int WIDTH_CASES = 8;
     public static int HEIGHT = (CASE_SIZE * 7);
     public static int REAL_HEIGHT = HEIGHT - 35; // without window border
     public static int RATIO_HEIGHT_CASES = (Settings.REAL_HEIGHT / Settings.HEIGHT_CASES);
-    public static int HEIGHT_CASES = 7;
-    public static int WIDTH_CASES = 8;
     public static Color CASE_COLOR1 = Color.decode("#4B7399");
     public static Color CASE_COLOR2 = Color.decode("#EAE9D2");
     public static double PLAY_TIME = 180.0; // time in seconds

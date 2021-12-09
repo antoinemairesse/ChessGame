@@ -11,7 +11,7 @@ import java.awt.*;
 public class Rook extends Piece {
 
     public Rook(int xCase, int yCase, Color color, Player player) {
-        super(xCase, yCase, color, player);
+        super(xCase, yCase, color, player, 50, "R");
     }
 
     @Override

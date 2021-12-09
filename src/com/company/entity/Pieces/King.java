@@ -13,7 +13,7 @@ public class King extends Piece {
     private boolean movesCalculated = false;
 
     public King(int xCase, int yCase, Color color, Player player) {
-        super(xCase, yCase, color, player);
+        super(xCase, yCase, color, player, 900, "K");
     }
 
     //
